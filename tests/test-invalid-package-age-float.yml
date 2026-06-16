@@ -1,0 +1,46 @@
+name: Test invalid minimum-package-age-days (float)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run action with float minimum-package-age-days (expect failure)
+        id: action
+        uses: .
+        with:
+          minimum-package-age-days: '1.5'
+          dry-run: 'true'
+        continue-on-error: true
+
+      - name: Assert action failed on float input
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" != "failure" ]; then
+            echo "FAIL: expected action to fail with float minimum-package-age-days '1.5', but got outcome '$OUTCOME'"
+            exit 1
+          fi
+          echo "PASS: action correctly rejected float value for minimum-package-age-days"
+
+      - name: Run action with negative minimum-package-age-days (expect failure)
+        id: action_neg
+        uses: .
+        with:
+          minimum-package-age-days: '-1'
+          dry-run: 'true'
+        continue-on-error: true
+
+      - name: Assert action failed on negative input
+        env:
+          OUTCOME: ${{ steps.action_neg.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" != "failure" ]; then
+            echo "FAIL: expected action to fail with negative minimum-package-age-days '-1', but got outcome '$OUTCOME'"
+            exit 1
+          fi
+          echo "PASS: action correctly rejected negative value for minimum-package-age-days"

