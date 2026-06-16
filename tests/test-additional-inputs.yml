@@ -1,0 +1,40 @@
+name: Test additional optional inputs coverage
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create instructions file
+        run: |
+          echo "Group commits by type. Be concise." > /tmp/instructions.txt
+
+      - name: Create config file
+        run: |
+          echo '{}' > /tmp/changelog-bot-config.json
+
+      - id: action
+        uses: .
+        env:
+          GITHUB_TOKEN: dummy-token-for-dry-run
+        with:
+          dry-run: 'true'
+          release-tag: HEAD
+          release-name: '2.0.0'
+          npm-version: 'latest'
+          minimum-package-age-days: '0'
+          base-branch: 'main'
+          config-path: '/tmp/changelog-bot-config.json'
+          instructions: 'Group by type and scope'
+          instructions-file: '/tmp/instructions.txt'
+          provider: 'openai'
+          release-body: 'This release includes bug fixes and improvements.'
+
+      - name: Assert action completed with additional inputs
+        run: |
+          echo "PASS: action completed with base-branch, config-path, instructions, instructions-file, provider, and release-body inputs"
