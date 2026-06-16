@@ -8,6 +8,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 
 | Version | Tag | Upstream commit |
 |---------|-----|-----------------|
+| v0.5.0 | [`v0.5.0`](https://github.com/chainguard-actions/nyaomaru-changelog-bot/tree/v0.5.0) | [`8ef5459`](https://github.com/nyaomaru/changelog-bot/commit/8ef5459de9adde89fd103f68addef041f153199d) |
 | v0.5.1 | [`v0.5.1`](https://github.com/chainguard-actions/nyaomaru-changelog-bot/tree/v0.5.1) | [`18be1e9`](https://github.com/nyaomaru/changelog-bot/commit/18be1e9f2dcca7ab09af74d30862df1ce974791d) |
 
 ## Privacy
