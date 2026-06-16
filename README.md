@@ -1,0 +1,1 @@
+# nyaomaru-changelog-bot
