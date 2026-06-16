@@ -1,0 +1,24 @@
+name: Test language and instructions inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: dummy-token
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Run changelog-bot with language and instructions inputs
+        id: action
+        uses: .
+        with:
+          language: en
+          instructions: "Group changes by type."
+          instructions-file: ${{ github.workspace }}/actions/hardened/nyaomaru--changelog-bot/v0.5.1/tests/fixtures/instructions.txt
+          dry-run: "true"
+          no-ai: "true"
+          npm-version: "latest"
+          minimum-package-age-days: "0"
+      - name: Assert action completed
+        run: |
+          echo "PASS: action completed with language, instructions, and instructions-file inputs"
