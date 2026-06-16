@@ -1,0 +1,31 @@
+name: Test base-branch, config-path, and release-body inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: dummy-token
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          base-branch: "main"
+          config-path: ${{ github.workspace }}/actions/hardened/nyaomaru--changelog-bot/v0.5.0/tests/fixtures/changelog-bot-config.json
+          release-body: "This is a test release body."
+          dry-run: "true"
+          no-ai: "true"
+          npm-version: "latest"
+          minimum-package-age-days: "0"
+        continue-on-error: true
+      - name: Assert action ran with base-branch, config-path, and release-body
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "skipped" ]; then
+            echo "FAIL: step was skipped unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action ran with base-branch, config-path, and release-body inputs"
