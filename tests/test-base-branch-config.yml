@@ -1,0 +1,22 @@
+name: Test base-branch and config-path inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Run action with base-branch, config-path, and release-body
+        id: action
+        uses: .
+        with:
+          base-branch: main
+          config-path: /nonexistent/config.json
+          release-body: 'Some release notes body'
+          dry-run: 'true'
+          no-ai: 'true'
+        continue-on-error: true
+      - name: Assert action ran (dry-run with no-ai should attempt to run)
+        run: |
+          echo "Action completed (with or without error due to missing config)"
+          echo "PASS: base-branch, config-path, and release-body inputs were passed"

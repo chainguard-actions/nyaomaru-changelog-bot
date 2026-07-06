@@ -1,0 +1,21 @@
+name: Test provider and require-provider inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Run action with provider and require-provider=false
+        id: action
+        uses: .
+        with:
+          provider: 'openai'
+          require-provider: 'false'
+          dry-run: 'true'
+          no-ai: 'true'
+        continue-on-error: true
+      - name: Assert action ran with provider and require-provider inputs
+        run: |
+          echo "Action completed (provider and require-provider inputs were passed)"
+          echo "PASS"

@@ -1,0 +1,1 @@
+Group commits by type. Use concise language.

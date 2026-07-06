@@ -1,0 +1,35 @@
+name: Test custom changelog-path input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create a custom changelog file
+        run: |
+          mkdir -p docs
+          echo "# Changelog" > docs/CHANGES.md
+          git add docs/CHANGES.md
+          git commit -m "chore: add custom changelog" --allow-empty
+
+      - id: action
+        uses: .
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          release-tag: 'HEAD'
+          release-name: '1.0.0'
+          changelog-path: 'docs/CHANGES.md'
+          minimum-package-age-days: '0'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Assert action completed successfully with custom path
+        run: |
+          echo "Action completed without error using custom changelog-path"
+          echo "PASS"
