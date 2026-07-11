@@ -1,0 +1,35 @@
+name: Test config-path and base-branch options (dry-run, no-ai)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create minimal changelog-bot config file
+        run: |
+          cat > /tmp/changelog-bot-config.json <<'EOF'
+          {
+            "changelogPath": "CHANGELOG.md",
+            "baseBranch": "main"
+          }
+          EOF
+      - name: Run changelog-bot with config-path and base-branch in dry-run no-ai mode
+        id: action
+        uses: .
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          config-path: '/tmp/changelog-bot-config.json'
+          base-branch: 'main'
+          release-tag: 'HEAD'
+          release-name: '0.0.0-test'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Assert action completed successfully
+        run: |
+          echo "Action completed with config-path and base-branch options"
+          echo "PASS"

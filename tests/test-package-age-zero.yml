@@ -1,0 +1,26 @@
+name: Test minimum-package-age-days zero value (default)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Run changelog-bot with minimum-package-age-days set to 0
+        id: action
+        uses: .
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          minimum-package-age-days: '0'
+          release-tag: 'HEAD'
+          release-name: '0.0.1-test'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Assert action succeeded with zero package age
+        run: |
+          echo "Action completed successfully with minimum-package-age-days=0"
+          echo "PASS"

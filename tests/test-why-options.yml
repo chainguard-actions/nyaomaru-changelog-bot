@@ -1,0 +1,30 @@
+name: Test WHY extraction options (dry-run, no-ai)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Run changelog-bot with WHY options in dry-run no-ai mode
+        id: action
+        uses: .
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          why: 'true'
+          why-max-prs: '5'
+          why-max-chars-per-pr: '1000'
+          why-confidence: 'low'
+          why-label: 'Why'
+          release-tag: 'HEAD'
+          release-name: '0.0.0-test'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Assert action completed successfully
+        run: |
+          echo "Action completed with WHY extraction options"
+          echo "PASS"

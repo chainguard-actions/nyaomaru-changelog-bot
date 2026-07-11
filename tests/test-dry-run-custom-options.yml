@@ -1,0 +1,28 @@
+name: Test dry-run with custom changelog path and language
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Run changelog-bot with custom options in dry-run no-ai mode
+        id: action
+        uses: .
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          changelog-path: 'CHANGELOG.md'
+          language: 'en'
+          release-tag: 'HEAD'
+          release-name: '1.0.0-test'
+          minimum-package-age-days: '0'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Assert action completed successfully
+        run: |
+          echo "Action completed with custom changelog-path and language options"
+          echo "PASS"
