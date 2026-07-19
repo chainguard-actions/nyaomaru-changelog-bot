@@ -1,0 +1,31 @@
+name: Test minimum-package-age-days zero (disable guard)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Create a minimal CHANGELOG for the test
+        run: |
+          echo "# Changelog" > CHANGELOG.md
+          git add CHANGELOG.md
+          git commit -m "test: add CHANGELOG.md" --allow-empty
+
+      - id: action
+        uses: .
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          minimum-package-age-days: '0'
+          release-tag: 'HEAD'
+          release-name: '0.0.0-test'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Assert action completed successfully with minimum-package-age-days=0
+        run: |
+          echo "PASS: action completed with minimum-package-age-days=0 in dry-run/no-ai mode"

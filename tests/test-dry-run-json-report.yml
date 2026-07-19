@@ -1,0 +1,23 @@
+name: Test dry-run-json-report, fail-on-llm-error, require-provider inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Run changelog-bot with dry-run-json-report, fail-on-llm-error, require-provider
+        id: action
+        uses: .
+        with:
+          dry-run: 'true'
+          dry-run-json-report: 'true'
+          fail-on-llm-error: 'false'
+          require-provider: 'false'
+          no-ai: 'true'
+          release-tag: 'HEAD'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Assert action completed
+        run: |
+          echo "PASS: action completed with dry-run-json-report, fail-on-llm-error, require-provider inputs"

@@ -1,0 +1,26 @@
+name: Test minimum-package-age-days zero value
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create a minimal CHANGELOG.md
+        run: |
+          echo "# Changelog" > CHANGELOG.md
+          git add CHANGELOG.md
+          git commit -m "chore: add changelog" || true
+      - id: action
+        uses: .
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          minimum-package-age-days: '0'
+          release-tag: HEAD
+          release-name: '0.1.0'
+        env:
+          GITHUB_TOKEN: dummy-token
+      - name: Assert action completed with zero package age
+        run: |
+          echo "PASS: action completed with minimum-package-age-days=0"

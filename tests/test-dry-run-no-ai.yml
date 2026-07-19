@@ -1,0 +1,30 @@
+name: Test dry-run no-ai mode
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Create a minimal CHANGELOG for the test
+        run: |
+          echo "# Changelog" > CHANGELOG.md
+          git add CHANGELOG.md
+          git commit -m "test: add CHANGELOG.md for dry-run test" --allow-empty
+
+      - id: action
+        uses: .
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          release-tag: 'HEAD'
+          release-name: '0.0.0-test'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Assert action completed successfully
+        run: |
+          echo "PASS: action completed in dry-run/no-ai mode without error"
