@@ -1,6 +1,6 @@
 <!-- markdownlint-disable -->
 
-# Hardening Report: nyaomaru--changelog-bot--/v0.6.4
+# Hardening Report: nyaomaru--changelog-bot/v0.6.4
 
 > This file was generated automatically by the hardening agent.
 
@@ -8,52 +8,71 @@
 
 **Test Policy SHA:** `843adf9e4b8f85d0c08b27b9d0b09dd094b54702`
 
-**Harden Agent Version:** `1`
+**Harden Agent Version:** `2`
 
-Action **nyaomaru--changelog-bot--/v0.6.4** was hardened automatically. 3 finding(s) were identified and resolved across 1 iteration(s).
+Action **nyaomaru--changelog-bot/v0.6.4** was hardened automatically. 3 finding(s) were identified and resolved across 1 iteration(s).
 
 ## Findings Fixed
 
 ### unpinned-uses (severity: high)
 
-Multiple files reference GitHub Actions using mutable tag/branch refs instead of pinned full-length SHA commits, making them vulnerable to supply-chain attacks. Failing references: action.yml: actions/setup-node@v4; build.yaml: actions/checkout@v4, jdx/mise-action@v2, actions/cache@v4; changelog.yaml: actions/checkout@v4, nyaomaru/changelog-bot@v0; major-tag-update.yaml: actions/checkout@v4; npm-publish.yaml: actions/checkout@v4, actions/setup-node@v4, jdx/mise-action@v2, actions/cache@v4; test.yaml: actions/checkout@v4, jdx/mise-action@v2, actions/cache@v4; version-bump.yaml: actions/checkout@v4, jdx/mise-action@v2, actions/cache@v4.
+Multiple `uses:` references are pinned to mutable tags rather than full 40-character SHA commit hashes, making the action vulnerable to supply-chain attacks if the tag is moved. Failing references include: actions/checkout@v4, jdx/mise-action@v2, actions/cache@v4, actions/setup-node@v4, nyaomaru/changelog-bot@v0 (in changelog.yaml), and actions/setup-node@v4 in action.yml.
 
 Locations:
 
-- `action.yml:63`
 - `.github/workflows/build.yaml:12`
 - `.github/workflows/build.yaml:16`
 - `.github/workflows/build.yaml:21`
-- `.github/workflows/changelog.yaml:75`
-- `.github/workflows/changelog.yaml:79`
+- `.github/workflows/changelog.yaml:76`
+- `.github/workflows/changelog.yaml:80`
 - `.github/workflows/major-tag-update.yaml:11`
 - `.github/workflows/npm-publish.yaml:14`
-- `.github/workflows/npm-publish.yaml:17`
-- `.github/workflows/npm-publish.yaml:22`
-- `.github/workflows/npm-publish.yaml:27`
+- `.github/workflows/npm-publish.yaml:18`
+- `.github/workflows/npm-publish.yaml:23`
+- `.github/workflows/npm-publish.yaml:33`
 - `.github/workflows/test.yaml:12`
 - `.github/workflows/test.yaml:16`
 - `.github/workflows/test.yaml:21`
-- `.github/workflows/version-bump.yaml:22`
-- `.github/workflows/version-bump.yaml:29`
-- `.github/workflows/version-bump.yaml:34`
+- `.github/workflows/version-bump.yaml:24`
+- `.github/workflows/version-bump.yaml:30`
+- `.github/workflows/version-bump.yaml:36`
+- `action.yml:76`
 
 ### script-injection (severity: high)
 
-Rule (a): ${{ }} expressions are directly interpolated inside run: shell command strings, allowing template substitution before the shell parses the command. In major-tag-update.yaml line 24: `git tag -fa v0 -m "Move v0 to ${{ github.event.release.tag_name }}"` — github context injected directly into a shell string. In version-bump.yaml line 48: `pnpm version ${{ inputs.release_type }} --no-git-tag-version` — inputs context injected directly. In version-bump.yaml lines 52, 63, 67, 71-75: `${{ env.new_version }}` injected directly into git checkout, git commit, git push, and gh pr create run: commands.
+Rule (a): GitHub Actions expressions are interpolated directly inside `run:` shell command strings, allowing template substitution to inject shell metacharacters before the shell parses the command.
+
+- major-tag-update.yaml line 25: `git tag -fa v0 -m "Move v0 to ${{ github.event.release.tag_name }}"` — github.event.release.tag_name is attacker-influenced and interpolated directly into a shell string.
+
+- version-bump.yaml line 50: `pnpm version ${{ inputs.release_type }} --no-git-tag-version` — inputs.release_type is a workflow_dispatch input interpolated directly into the shell command (even though it is a choice input, direct interpolation is still a violation).
+
+- version-bump.yaml line 54: `git checkout -b "release/${{ env.new_version }}"` — env context interpolated directly in run:.
+
+- version-bump.yaml line 63: `git commit -m "chore(release): bump version to ${{ env.new_version }}"` — env context interpolated directly in run:.
+
+- version-bump.yaml line 67: `git push -u origin "HEAD:release/${{ env.new_version }}"` — env context interpolated directly in run:.
+
+- version-bump.yaml lines 71-75: `gh pr create` with --head, --title, and --body all containing `${{ env.new_version }}` — env context interpolated directly in run:.
 
 Locations:
 
-- `.github/workflows/major-tag-update.yaml:24`
-- `.github/workflows/version-bump.yaml:48`
-- `.github/workflows/version-bump.yaml:52`
+- `.github/workflows/major-tag-update.yaml:25`
+- `.github/workflows/version-bump.yaml:50`
+- `.github/workflows/version-bump.yaml:54`
 - `.github/workflows/version-bump.yaml:63`
 - `.github/workflows/version-bump.yaml:67`
-- `.github/workflows/version-bump.yaml:71`
+- `.github/workflows/version-bump.yaml:72`
+- `.github/workflows/version-bump.yaml:73`
+- `.github/workflows/version-bump.yaml:74`
+- `.github/workflows/version-bump.yaml:75`
 
 ### missing-permissions (severity: medium)
 
-The following workflow files have no top-level permissions: key and no job-level permissions: key on any job, meaning they run with the default (potentially broad) token permissions: build.yaml, test.yaml, and major-tag-update.yaml.
+The following workflow files have no top-level `permissions:` key and no job-level `permissions:` key on any of their jobs. Without explicit permissions, the workflow inherits the repository's default token permissions, which may be overly broad (write-all by default in many repositories).
+
+- build.yaml: triggered on pull_request, no permissions declared.
+- test.yaml: triggered on pull_request, no permissions declared.
+- major-tag-update.yaml: triggered on release published, performs git tag operations, no permissions declared.
 
 Locations:
 
@@ -69,21 +88,23 @@ Locations:
 
 **Notes:**
 
-Fixed all findings across action.yml and .github/workflows/*.yaml files:
+Fixed all findings across 7 files:
 
-1. unpinned-uses: Pinned all action refs to full commit SHAs:
-   - actions/checkout@v4 → @34e114876b0b11c390a56381ad16ebd13914f8d5
-   - actions/setup-node@v4 → @49933ea5288caeca8642d1e84afbd3f7d6820020
-   - actions/cache@v4 → @0057852bfaa89a56745cba8c7296529d2fc39830
-   - jdx/mise-action@v2 → @c37c93293d6b742fc901e1406b8f764f6fb19dac
-   - nyaomaru/changelog-bot@v0 → @99b9bdd9f68e10a1c3def5f7dc05d2c114a5d682
+**unpinned-uses**: Pinned all action references to full SHAs:
+- actions/checkout@v4 → @11d5960a326750d5838078e36cf38b85af677262
+- jdx/mise-action@v2 → @c37c93293d6b742fc901e1406b8f764f6fb19dac
+- actions/cache@v4 → @0057852bfaa89a56745cba8c7296529d2fc39830
+- actions/setup-node@v4 → @49933ea5288caeca8642d1e84afbd3f7d6820020
+- nyaomaru/changelog-bot@v0 → @e34e7889a572fa36aeb2dc04f53b5c6b2b7a2cea
+Applied in: build.yaml, test.yaml, major-tag-update.yaml, changelog.yaml, npm-publish.yaml, version-bump.yaml, action.yml
 
-2. script-injection: Moved all ${{ }} expressions out of run: blocks into env: blocks:
-   - major-tag-update.yaml: moved github.event.release.tag_name into TAG_NAME env var
-   - version-bump.yaml: moved inputs.release_type into RELEASE_TYPE env var; replaced all ${{ env.new_version }} references in run: blocks with plain shell ${new_version} (set via $GITHUB_ENV)
+**script-injection**: Moved all ${{ }} expressions out of run: blocks into env: blocks:
+- major-tag-update.yaml line 25: github.event.release.tag_name → TAG_NAME env var
+- version-bump.yaml line 50: inputs.release_type → RELEASE_TYPE env var
+- version-bump.yaml lines 54/63/67/72-75: all ${{ env.new_version }} references replaced with ${new_version} shell variable (new_version is set via GITHUB_ENV in the Generate new version step)
 
-3. missing-permissions: Added top-level permissions blocks:
-   - build.yaml: permissions: contents: read
-   - test.yaml: permissions: contents: read
-   - major-tag-update.yaml: permissions: contents: write (needed for git push --force)
+**missing-permissions**: Added top-level permissions blocks:
+- build.yaml: permissions: contents: read (pull_request workflow, only needs to read code)
+- test.yaml: permissions: contents: read (pull_request workflow, only needs to read code)
+- major-tag-update.yaml: permissions: contents: write (needs to push git tags)
 

@@ -95,11 +95,11 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with: { fetch-depth: 0 }
 
       - name: Run changelog bot action
-        uses: nyaomaru/changelog-bot@99b9bdd9f68e10a1c3def5f7dc05d2c114a5d682 # v0
+        uses: nyaomaru/changelog-bot@e34e7889a572fa36aeb2dc04f53b5c6b2b7a2cea # v0
         with:
           changelog-path: ${{ inputs.changelog_path }}
           config-path: ${{ inputs.config_path }}

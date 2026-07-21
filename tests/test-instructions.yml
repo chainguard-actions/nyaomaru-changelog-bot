@@ -6,16 +6,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Run action with instructions and instructions-file
-        id: action
+      - name: Create instructions file
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/tmp-instructions"
+          echo "Group changes by type. Be concise." > "$GITHUB_WORKSPACE/tmp-instructions/instructions.txt"
+      - id: action
         uses: .
         with:
-          instructions: 'Be concise and group by feature area'
-          instructions-file: '${{ github.workspace }}/hardened/tests/fixtures/instructions.txt'
           dry-run: 'true'
           no-ai: 'true'
-        continue-on-error: true
-      - name: Assert action ran with instructions inputs
+          instructions: 'Keep entries short and clear.'
+          instructions-file: './tmp-instructions/instructions.txt'
+      - name: Assert action completed
         run: |
-          echo "Action completed (instructions and instructions-file inputs were passed)"
-          echo "PASS"
+          echo "PASS: action ran with instructions and instructions-file inputs"

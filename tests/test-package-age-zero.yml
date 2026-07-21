@@ -1,4 +1,4 @@
-name: Test dry-run with no-ai
+name: Test minimum-package-age-days zero (default)
 on:
   workflow_dispatch:
 jobs:
@@ -9,7 +9,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run changelog-bot in dry-run no-ai mode
+      - name: Run changelog-bot with explicit minimum-package-age-days=0
         id: action
         uses: .
         env:
@@ -18,8 +18,9 @@ jobs:
           dry-run: 'true'
           no-ai: 'true'
           release-tag: 'HEAD'
-          release-name: '0.0.1-test'
+          release-name: '0.0.2-test'
+          minimum-package-age-days: '0'
 
       - name: Assert action completed successfully
         run: |
-          echo "PASS: action completed without error"
+          echo "PASS: action completed without error with minimum-package-age-days=0"

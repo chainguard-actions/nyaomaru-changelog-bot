@@ -1,4 +1,4 @@
-name: Test dry-run-json-report and fail-on-llm-error inputs
+name: Test dry-run-json-report and require-provider inputs
 on:
   workflow_dispatch:
 jobs:
@@ -6,16 +6,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Run action with dry-run-json-report and fail-on-llm-error
-        id: action
+      - id: action
         uses: .
         with:
           dry-run: 'true'
-          dry-run-json-report: 'true'
-          fail-on-llm-error: 'false'
           no-ai: 'true'
-        continue-on-error: true
-      - name: Assert action ran with dry-run-json-report and fail-on-llm-error inputs
+          dry-run-json-report: 'true'
+          require-provider: 'false'
+      - name: Assert action completed
         run: |
-          echo "Action completed (dry-run-json-report and fail-on-llm-error inputs were passed)"
-          echo "PASS"
+          echo "PASS: action ran with dry-run-json-report and require-provider inputs"
