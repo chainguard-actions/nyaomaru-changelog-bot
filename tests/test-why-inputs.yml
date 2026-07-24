@@ -1,0 +1,34 @@
+name: Test WHY extraction inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+
+      - name: Run changelog-bot with WHY inputs in dry-run no-ai mode
+        uses: .
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          release-tag: 'HEAD'
+          release-name: '0.0.0-test'
+          why: 'false'
+          why-max-prs: '10'
+          why-max-chars-per-pr: '2000'
+          why-confidence: 'medium'
+          why-label: 'Why'
+
+      - name: Assert action completed successfully
+        run: |
+          echo "PASS: action completed with WHY inputs without error"

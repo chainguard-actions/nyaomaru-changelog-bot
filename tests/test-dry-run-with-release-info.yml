@@ -1,0 +1,40 @@
+name: Test dry-run with release info inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+
+      - name: Create a test changelog file
+        run: |
+          cat > /tmp/TEST_CHANGELOG.md << 'EOF'
+          # Changelog
+
+          ## [Unreleased]
+          EOF
+
+      - name: Run changelog-bot with release info in dry-run mode
+        uses: .
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          release-tag: 'HEAD'
+          release-name: '1.2.3'
+          release-body: 'Test release notes for CI'
+          changelog-path: '/tmp/TEST_CHANGELOG.md'
+          language: 'en'
+
+      - name: Assert action completed successfully
+        run: |
+          echo "PASS: action completed with release info inputs without error"

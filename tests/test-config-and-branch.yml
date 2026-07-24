@@ -1,0 +1,45 @@
+name: Test config-path and base-branch inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+
+      - name: Create a minimal changelog-bot config file
+        run: |
+          cat > /tmp/test-changelog-bot-config.json << 'EOF'
+          {
+            "changelogPath": "/tmp/TEST_CHANGELOG_CONFIG.md",
+            "noAi": true
+          }
+          EOF
+          cat > /tmp/TEST_CHANGELOG_CONFIG.md << 'EOF'
+          # Changelog
+
+          ## [Unreleased]
+          EOF
+
+      - name: Run changelog-bot with config-path and base-branch in dry-run mode
+        uses: .
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          release-tag: 'HEAD'
+          release-name: '0.0.0-test'
+          config-path: '/tmp/test-changelog-bot-config.json'
+          base-branch: 'main'
+
+      - name: Assert action completed successfully
+        run: |
+          echo "PASS: action completed with config-path and base-branch inputs without error"

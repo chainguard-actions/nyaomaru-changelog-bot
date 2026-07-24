@@ -1,0 +1,35 @@
+name: Test instructions and instructions-file inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+
+      - name: Create instructions file
+        run: |
+          echo "Group entries by type. Use concise language." > /tmp/test-instructions.txt
+
+      - name: Run changelog-bot with instructions inputs in dry-run no-ai mode
+        uses: .
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          release-tag: 'HEAD'
+          release-name: '0.0.0-test'
+          instructions: 'Keep entries brief and clear.'
+          instructions-file: '/tmp/test-instructions.txt'
+
+      - name: Assert action completed successfully
+        run: |
+          echo "PASS: action completed with instructions and instructions-file inputs without error"
