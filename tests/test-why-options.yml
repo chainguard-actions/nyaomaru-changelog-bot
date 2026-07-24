@@ -1,30 +1,39 @@
-name: Test WHY extraction options (dry-run, no-ai)
+name: Test why-related options
 on:
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_REF: refs/heads/main
-      GITHUB_EVENT_NAME: push
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Run changelog-bot with WHY options in dry-run no-ai mode
-        id: action
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity (required for changelog-bot)
+        run: |
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+
+      - name: Pre-enable corepack
+        run: |
+          corepack enable || true
+
+      - name: Run changelog-bot with why options in dry-run + no-ai mode
         uses: .
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           dry-run: 'true'
           no-ai: 'true'
-          why: 'true'
-          why-max-prs: '5'
-          why-max-chars-per-pr: '1000'
-          why-confidence: 'low'
-          why-label: 'Why'
           release-tag: 'HEAD'
           release-name: '0.0.0-test'
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+          npm-version: '0.6.5'
+          why: 'false'
+          why-max-prs: '5'
+          why-max-chars-per-pr: '1000'
+          why-confidence: 'medium'
+          why-label: 'Why'
+
       - name: Assert action completed successfully
         run: |
-          echo "Action completed with WHY extraction options"
-          echo "PASS"
+          echo "PASS: action completed with why, why-max-prs, why-max-chars-per-pr, why-confidence, and why-label inputs"

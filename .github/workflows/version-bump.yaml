@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
@@ -59,7 +59,10 @@ jobs:
           printf 'new_version=%s\n' "$version_no_v" >> "$GITHUB_ENV"
 
       - name: Create new branch
-        run: git checkout -b "release/${new_version}"
+        run: |
+          git checkout -b "release/$NEW_VERSION"
+        env:
+          NEW_VERSION: ${{ env.new_version }}
 
       - name: Configure git (bot identity)
         run: |
@@ -72,19 +75,23 @@ jobs:
           git remote -v
 
       - name: Commit & Push changes
+        env:
+          NEW_VERSION: ${{ env.new_version }}
         run: |
           git add package.json pnpm-lock.yaml || true
           if ! git diff --cached --quiet; then
-            git commit -m "chore(release): bump version to ${new_version}"
+            git commit -m "chore(release): bump version to $NEW_VERSION"
           else
             echo "No changes to commit"
           fi
-          git push -u origin "HEAD:release/${new_version}"
+          git push -u origin "HEAD:release/$NEW_VERSION"
 
       - name: Create Pull Request
+        env:
+          NEW_VERSION: ${{ env.new_version }}
         run: |
           gh pr create \
             --base main \
-            --head "release/${new_version}" \
-            --title "Release: ${new_version}" \
-            --body "Auto-generated release PR for version ${new_version}"
+            --head "release/$NEW_VERSION" \
+            --title "Release: $NEW_VERSION" \
+            --body "Auto-generated release PR for version $NEW_VERSION"

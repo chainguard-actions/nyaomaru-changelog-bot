@@ -1,4 +1,4 @@
-name: Test dry-run-json-report option
+name: Test instructions and config-path options
 on:
   workflow_dispatch:
 jobs:
@@ -18,7 +18,7 @@ jobs:
         run: |
           corepack enable || true
 
-      - name: Run changelog-bot with dry-run-json-report in dry-run + no-ai mode
+      - name: Run changelog-bot with instructions and config options in dry-run + no-ai mode
         uses: .
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -28,8 +28,11 @@ jobs:
           release-tag: 'HEAD'
           release-name: '0.0.0-test'
           npm-version: '0.6.5'
-          dry-run-json-report: 'true'
+          instructions: 'Group changes by type. Be concise.'
+          instructions-file: '${{ github.workspace }}/hardened/tests/fixtures/instructions.txt'
+          config-path: '${{ github.workspace }}/hardened/tests/fixtures/changelog-bot-config.json'
+          base-branch: 'main'
 
       - name: Assert action completed successfully
         run: |
-          echo "PASS: action completed with dry-run-json-report input"
+          echo "PASS: action completed with instructions, instructions-file, config-path, and base-branch inputs"

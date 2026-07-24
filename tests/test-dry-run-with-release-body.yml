@@ -1,4 +1,4 @@
-name: Test dry-run-json-report option
+name: Test dry-run with release body and custom changelog path
 on:
   workflow_dispatch:
 jobs:
@@ -9,16 +9,20 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Configure git identity (required for changelog-bot)
+      - name: Configure git identity
         run: |
           git config user.email "test@example.com"
           git config user.name "Test User"
+
+      - name: Create a temporary changelog file for testing
+        run: |
+          echo "# Changelog" > "$GITHUB_WORKSPACE/TEST_CHANGELOG.md"
 
       - name: Pre-enable corepack
         run: |
           corepack enable || true
 
-      - name: Run changelog-bot with dry-run-json-report in dry-run + no-ai mode
+      - name: Run changelog-bot with release body in dry-run mode
         uses: .
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -26,10 +30,11 @@ jobs:
           dry-run: 'true'
           no-ai: 'true'
           release-tag: 'HEAD'
-          release-name: '0.0.0-test'
+          release-name: '1.0.0-test'
+          release-body: 'This is a test release note for CI validation.'
+          changelog-path: 'TEST_CHANGELOG.md'
           npm-version: '0.6.5'
-          dry-run-json-report: 'true'
 
       - name: Assert action completed successfully
         run: |
-          echo "PASS: action completed with dry-run-json-report input"
+          echo "PASS: action completed with release-body and changelog-path inputs"

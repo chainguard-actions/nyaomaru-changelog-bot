@@ -1,28 +1,37 @@
-name: Test provider options (dry-run, no-ai)
+name: Test provider-related options
 on:
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_REF: refs/heads/main
-      GITHUB_EVENT_NAME: push
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Run changelog-bot with provider options in dry-run no-ai mode
-        id: action
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity (required for changelog-bot)
+        run: |
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+
+      - name: Pre-enable corepack
+        run: |
+          corepack enable || true
+
+      - name: Run changelog-bot with provider options in dry-run + no-ai mode
         uses: .
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           dry-run: 'true'
           no-ai: 'true'
+          release-tag: 'HEAD'
+          release-name: '0.0.0-test'
+          npm-version: '0.6.5'
           provider: 'openai'
           fail-on-llm-error: 'false'
           require-provider: 'false'
-          release-tag: 'HEAD'
-          release-name: '0.0.0-test'
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+
       - name: Assert action completed successfully
         run: |
-          echo "Action completed with provider, fail-on-llm-error, and require-provider options"
-          echo "PASS"
+          echo "PASS: action completed with provider, fail-on-llm-error, and require-provider inputs"
