@@ -1,0 +1,32 @@
+name: Test minimum-package-age-days zero value
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+
+      - name: Run changelog-bot with minimum-package-age-days=0 (disables guard)
+        id: action
+        uses: .
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          release-tag: 'HEAD'
+          release-name: '0.0.0-test'
+          minimum-package-age-days: '0'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Assert action completed successfully with age-days=0
+        run: |
+          echo "Action completed without error with minimum-package-age-days=0"
+          echo "PASS"

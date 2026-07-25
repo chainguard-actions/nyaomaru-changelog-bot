@@ -1,0 +1,36 @@
+name: Test dry-run with WHY extraction options
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+
+      - name: Run changelog-bot with WHY extraction options
+        id: action
+        uses: .
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          release-tag: 'HEAD'
+          release-name: '1.0.0-test'
+          why: 'false'
+          why-max-prs: '10'
+          why-max-chars-per-pr: '2000'
+          why-confidence: 'medium'
+          why-label: 'Why'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Assert action completed successfully
+        run: |
+          echo "Action completed without error using WHY extraction options"
+          echo "PASS"

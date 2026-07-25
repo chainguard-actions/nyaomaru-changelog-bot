@@ -1,0 +1,39 @@
+name: Test dry-run with language and instructions inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+
+      - name: Create instructions file
+        run: |
+          echo "Group commits by type." > /tmp/test-instructions.txt
+
+      - name: Run changelog-bot with language, instructions, instructions-file, and release-body
+        id: action
+        uses: .
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          release-tag: 'HEAD'
+          release-name: '1.0.0-test'
+          language: 'en'
+          instructions: 'Keep entries concise.'
+          instructions-file: '/tmp/test-instructions.txt'
+          release-body: 'Initial release notes.'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Assert action completed successfully
+        run: |
+          echo "Action completed without error using language, instructions, instructions-file, and release-body"
+          echo "PASS"
