@@ -1,0 +1,28 @@
+name: Test dry-run with config-path, base-branch, fail-on-llm-error, require-provider
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create a minimal changelog-bot config file
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/hardened/tests/fixtures"
+          cat > "$GITHUB_WORKSPACE/hardened/tests/fixtures/changelog-bot.json" <<'EOF'
+          {
+            "changelogPath": "CHANGELOG.md"
+          }
+          EOF
+      - name: Run action with config-path, base-branch, fail-on-llm-error, require-provider
+        uses: .
+        with:
+          config-path: hardened/tests/fixtures/changelog-bot.json
+          base-branch: act-harness
+          fail-on-llm-error: 'false'
+          require-provider: 'false'
+          no-ai: 'true'
+          dry-run: 'true'
+      - name: Assert action completed successfully
+        run: |
+          echo "PASS: action completed with config-path, base-branch, fail-on-llm-error, require-provider inputs"

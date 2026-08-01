@@ -1,0 +1,23 @@
+name: Test dry-run with instructions, instructions-file, dry-run-json-report
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create instructions file fixture
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/hardened/tests/fixtures"
+          echo "Group changes by component." > "$GITHUB_WORKSPACE/hardened/tests/fixtures/instructions.txt"
+      - name: Run action with instructions, instructions-file, dry-run-json-report
+        uses: .
+        with:
+          instructions: 'Keep entries concise.'
+          instructions-file: hardened/tests/fixtures/instructions.txt
+          dry-run-json-report: 'true'
+          no-ai: 'true'
+          dry-run: 'true'
+      - name: Assert action completed successfully
+        run: |
+          echo "PASS: action completed with instructions, instructions-file, dry-run-json-report inputs"
