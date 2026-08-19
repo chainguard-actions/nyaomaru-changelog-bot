@@ -1,0 +1,31 @@
+name: Test dry-run with release body and language
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Create a minimal CHANGELOG.md for the test
+        run: |
+          cat > CHANGELOG.md <<'EOF'
+          # Changelog
+
+          All notable changes to this project will be documented in this file.
+          EOF
+      - id: action
+        uses: .
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          dry-run: 'true'
+          changelog-path: 'CHANGELOG.md'
+          release-tag: 'HEAD'
+          release-name: '0.0.2-test'
+          release-body: 'Initial test release with some fixes and improvements.'
+          language: 'English'
+      - name: Assert action completed successfully
+        run: |
+          echo "PASS: action completed in dry-run mode with release body and language"

@@ -1,0 +1,25 @@
+name: Test instructions input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          dry-run: 'true'
+          release-tag: HEAD
+          release-name: '0.0.1'
+          instructions: 'Group changes by type. Use clear and concise language.'
+          npm-version: 'latest'
+          minimum-package-age-days: '0'
+      - name: Assert action completed with instructions
+        run: |
+          echo "PASS: action completed with instructions input"

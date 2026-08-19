@@ -1,0 +1,29 @@
+name: Test base-branch and config-path inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create minimal config file
+        run: |
+          echo '{}' > /tmp/changelog-bot-config.json
+      - id: action
+        uses: .
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          dry-run: 'true'
+          release-tag: HEAD
+          release-name: '0.0.1'
+          base-branch: 'main'
+          config-path: '/tmp/changelog-bot-config.json'
+          npm-version: 'latest'
+          minimum-package-age-days: '0'
+      - name: Assert action completed with base-branch and config-path
+        run: |
+          echo "PASS: action completed with base-branch and config-path inputs"

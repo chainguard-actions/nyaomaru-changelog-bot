@@ -1,0 +1,26 @@
+name: Test provider input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          OPENAI_API_KEY: 'sk-placeholder-dry-run-only'
+        with:
+          dry-run: 'true'
+          release-tag: HEAD
+          release-name: '0.0.1'
+          provider: 'openai'
+          npm-version: 'latest'
+          minimum-package-age-days: '0'
+      - name: Assert action completed with provider input
+        run: |
+          echo "PASS: action completed with provider input"
