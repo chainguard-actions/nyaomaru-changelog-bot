@@ -1,0 +1,31 @@
+name: Test dry-run with config-path and instructions-file inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Configure git user
+        run: |
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+      - name: Create config and instructions files
+        run: |
+          mkdir -p /tmp/changelog-bot-test
+          cat > /tmp/changelog-bot-test/changelog-bot.json <<'EOF'
+          {}
+          EOF
+          echo "Group changes by feature area" > /tmp/changelog-bot-test/instructions.txt
+      - id: action
+        uses: .
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          config-path: '/tmp/changelog-bot-test/changelog-bot.json'
+          instructions-file: '/tmp/changelog-bot-test/instructions.txt'
+      - name: Assert action completed successfully
+        run: |
+          echo "PASS: action completed with config-path and instructions-file inputs"

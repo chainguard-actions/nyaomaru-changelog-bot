@@ -1,0 +1,26 @@
+name: Test dry-run with extra inputs (language, base-branch, release-body, instructions)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Configure git user
+        run: |
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+      - id: action
+        uses: .
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          language: 'en'
+          base-branch: 'main'
+          release-body: 'Test release notes body'
+          instructions: 'Group by type'
+      - name: Assert action completed successfully
+        run: |
+          echo "PASS: action completed with language, base-branch, release-body, and instructions inputs"
