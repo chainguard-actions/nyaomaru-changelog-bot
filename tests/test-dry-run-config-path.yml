@@ -1,4 +1,4 @@
-name: Test dry-run with dry-run-json-report input
+name: Test dry-run with config-path input
 on:
   workflow_dispatch:
 jobs:
@@ -15,9 +15,9 @@ jobs:
         with:
           dry-run: 'true'
           no-ai: 'true'
-          dry-run-json-report: 'true'
+          config-path: '${{ github.workspace }}/hardened/tests/fixtures/changelog-bot-config.json'
         env:
           GITHUB_TOKEN: ${{ github.token }}
       - name: Assert action completed
         run: |
-          echo "PASS: action completed with dry-run-json-report input"
+          echo "PASS: action completed with config-path input"

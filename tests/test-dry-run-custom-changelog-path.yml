@@ -1,4 +1,4 @@
-name: Test dry-run with no-ai (deterministic output)
+name: Test dry-run with custom changelog path
 on:
   workflow_dispatch:
 jobs:
@@ -9,12 +9,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up git identity (needed for changelog-bot)
+      - name: Set up git identity
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Run changelog-bot in dry-run + no-ai mode
+      - name: Create a custom changelog file path
+        run: |
+          mkdir -p /tmp/changelog-test
+          touch /tmp/changelog-test/MY_CHANGELOG.md
+
+      - name: Run changelog-bot with custom changelog path in dry-run + no-ai mode
         id: action
         uses: .
         env:
@@ -24,8 +29,9 @@ jobs:
           no-ai: 'true'
           release-tag: 'HEAD'
           release-name: '0.0.1-test'
+          changelog-path: '/tmp/changelog-test/MY_CHANGELOG.md'
 
       - name: Assert action completed successfully
         run: |
-          echo "Action completed without error"
+          echo "Action completed without error using custom changelog path"
           echo "PASS"

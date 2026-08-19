@@ -1,4 +1,4 @@
-name: Test dry-run with dry-run-json-report input
+name: Test dry-run with provider, require-provider, and fail-on-llm-error inputs
 on:
   workflow_dispatch:
 jobs:
@@ -15,9 +15,11 @@ jobs:
         with:
           dry-run: 'true'
           no-ai: 'true'
-          dry-run-json-report: 'true'
+          provider: 'openai'
+          require-provider: 'false'
+          fail-on-llm-error: 'false'
         env:
           GITHUB_TOKEN: ${{ github.token }}
       - name: Assert action completed
         run: |
-          echo "PASS: action completed with dry-run-json-report input"
+          echo "PASS: action completed with provider, require-provider, and fail-on-llm-error inputs"

@@ -1,1 +1,2 @@
-Group changes by type. Use clear, concise language.
+Group changes by type: Features, Bug Fixes, and Documentation.
+Use clear and concise language.

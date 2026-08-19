@@ -1,4 +1,4 @@
-name: Test dry-run with no-ai (deterministic output)
+name: Test dry-run with explicit minimum-package-age-days=0
 on:
   workflow_dispatch:
 jobs:
@@ -9,12 +9,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up git identity (needed for changelog-bot)
+      - name: Set up git identity
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Run changelog-bot in dry-run + no-ai mode
+      - name: Run changelog-bot with minimum-package-age-days=0 in dry-run + no-ai mode
         id: action
         uses: .
         env:
@@ -24,8 +24,10 @@ jobs:
           no-ai: 'true'
           release-tag: 'HEAD'
           release-name: '0.0.1-test'
+          minimum-package-age-days: '0'
+          npm-version: 'latest'
 
       - name: Assert action completed successfully
         run: |
-          echo "Action completed without error"
+          echo "Action completed without error with minimum-package-age-days=0"
           echo "PASS"
