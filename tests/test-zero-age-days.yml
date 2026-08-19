@@ -1,4 +1,4 @@
-name: Test dry-run mode
+name: Test zero minimum-package-age-days (default)
 on:
   workflow_dispatch:
 jobs:
@@ -14,7 +14,8 @@ jobs:
           git config user.email "test@example.com"
           git config user.name "Test User"
 
-      - name: Run changelog-bot in dry-run mode
+      - name: Run changelog-bot with explicit zero minimum-package-age-days
+        id: action
         uses: .
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -22,7 +23,8 @@ jobs:
           dry-run: 'true'
           release-tag: 'HEAD'
           release-name: '0.0.0-test'
+          minimum-package-age-days: '0'
 
-      - name: Assert dry-run completed successfully
+      - name: Assert action succeeded with zero age days
         run: |
-          echo "PASS: dry-run completed without error"
+          echo "PASS: action completed successfully with minimum-package-age-days=0"

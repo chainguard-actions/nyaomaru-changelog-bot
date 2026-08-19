@@ -1,0 +1,23 @@
+name: Test provider and release-body inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - id: action
+        uses: .
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          # provider is intentionally empty so no LLM key is required;
+          # the action skips --provider when the value is empty
+          provider: ''
+          release-body: 'Bug fixes and improvements.'
+          dry-run: 'true'
+      - name: Assert step completed
+        run: |
+          echo "PASS: action ran with provider and release-body inputs"

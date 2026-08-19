@@ -1,4 +1,4 @@
-name: Test dry-run mode
+name: Test language input
 on:
   workflow_dispatch:
 jobs:
@@ -14,7 +14,8 @@ jobs:
           git config user.email "test@example.com"
           git config user.name "Test User"
 
-      - name: Run changelog-bot in dry-run mode
+      - name: Run changelog-bot with language input in dry-run mode
+        id: action
         uses: .
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -22,7 +23,8 @@ jobs:
           dry-run: 'true'
           release-tag: 'HEAD'
           release-name: '0.0.0-test'
+          language: 'en'
 
-      - name: Assert dry-run completed successfully
+      - name: Assert action succeeded with language input
         run: |
-          echo "PASS: dry-run completed without error"
+          echo "PASS: action completed successfully with language=en"

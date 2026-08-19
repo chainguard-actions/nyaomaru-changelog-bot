@@ -1,0 +1,29 @@
+name: Test path inputs (changelog-path, config-path, base-branch)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Create a minimal CHANGELOG file
+        run: |
+          echo "# Changelog" > "$GITHUB_WORKSPACE/CHANGELOG.md"
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          git add CHANGELOG.md
+          git commit -m "chore: add changelog" --allow-empty
+      - id: action
+        uses: .
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          changelog-path: 'CHANGELOG.md'
+          config-path: ''
+          base-branch: 'act-harness'
+          dry-run: 'true'
+      - name: Assert step completed
+        run: |
+          echo "PASS: action ran with changelog-path, config-path, and base-branch inputs"
