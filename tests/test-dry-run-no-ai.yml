@@ -4,31 +4,28 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_REF: refs/heads/main
-      GITHUB_EVENT_NAME: push
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
 
-      - name: Create a minimal CHANGELOG.md for the test
+      - name: Configure git identity
         run: |
-          echo "# Changelog" > CHANGELOG.md
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add CHANGELOG.md
-          git commit -m "chore: add changelog" --allow-empty
+          git config user.email "test@example.com"
+          git config user.name "Test User"
 
-      - id: action
+      - name: Run changelog-bot in dry-run no-ai mode
+        id: action
         uses: .
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           dry-run: 'true'
           no-ai: 'true'
           release-tag: 'HEAD'
-          release-name: '0.0.1'
-          changelog-path: 'CHANGELOG.md'
-          npm-version: 'latest'
-          minimum-package-age-days: '0'
+          release-name: '0.0.1-test'
 
       - name: Assert action completed successfully
         run: |
-          echo "PASS: action completed in dry-run + no-ai mode without error"
+          echo "Action completed without error"
+          echo "PASS"

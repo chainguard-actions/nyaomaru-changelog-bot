@@ -1,0 +1,35 @@
+name: Test instructions inputs (instructions, instructions-file, fail-on-llm-error, require-provider)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+
+      - name: Run changelog-bot with instructions inputs in dry-run no-ai mode
+        id: action
+        uses: .
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          release-tag: 'HEAD'
+          release-name: '1.0.0'
+          instructions: 'Group changes by type and use concise language.'
+          instructions-file: '${{ github.workspace }}/hardened/tests/fixtures/instructions.txt'
+          fail-on-llm-error: 'false'
+          require-provider: 'false'
+
+      - name: Assert action completed successfully
+        run: |
+          echo "Action completed without error (instructions, instructions-file, fail-on-llm-error, require-provider inputs exercised)"
+          echo "PASS"
