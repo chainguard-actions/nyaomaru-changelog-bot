@@ -1,0 +1,107 @@
+name: Version Bump
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Select version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options: [patch, minor, major]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Setup mise
+        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4
+        with:
+          install: true
+
+      - name: Enable Corepack
+        run: |
+          corepack enable
+          corepack install
+
+      - name: Resolve pnpm store path
+        id: pnpm-store
+        run: |
+          pnpm_store_path="$(pnpm store path)"
+          if [[ -z "$pnpm_store_path" ]]; then
+            echo "::error::pnpm store path returned an empty value"
+            exit 1
+          fi
+          printf 'path=%s\n' "$pnpm_store_path" >> "$GITHUB_OUTPUT"
+
+      - name: Cache pnpm store
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: ${{ steps.pnpm-store.outputs.path }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate new version
+        id: version
+        env:
+          RELEASE_TYPE: ${{ inputs.release_type }}
+        run: |
+          set -euo pipefail
+          pnpm version "$RELEASE_TYPE" --no-git-tag-version
+          version_no_v=$(node -p "require('./package.json').version")
+          printf 'new_version=%s\n' "$version_no_v" >> "$GITHUB_ENV"
+
+      - name: Create new branch
+        run: git checkout -b "release/$NEW_VERSION"
+        env:
+          NEW_VERSION: ${{ env.new_version }}
+
+      - name: Configure git (bot identity)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Update remote to use token
+        run: |
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git remote -v
+
+      - name: Commit & Push changes
+        env:
+          NEW_VERSION: ${{ env.new_version }}
+        run: |
+          git add package.json pnpm-lock.yaml || true
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(release): bump version to $NEW_VERSION"
+          else
+            echo "No changes to commit"
+          fi
+          git push -u origin "HEAD:release/$NEW_VERSION"
+
+      - name: Create Pull Request
+        env:
+          NEW_VERSION: ${{ env.new_version }}
+        run: |
+          gh pr create \
+            --base main \
+            --head "release/$NEW_VERSION" \
+            --title "Release: $NEW_VERSION" \
+            --body "Auto-generated release PR for version $NEW_VERSION"
