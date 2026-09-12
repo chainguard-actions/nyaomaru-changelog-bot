@@ -18,6 +18,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 | v0.6.11 | [`v0.6.11`](https://github.com/chainguard-actions/nyaomaru-changelog-bot/tree/v0.6.11) | [`8d8e260`](https://github.com/nyaomaru/changelog-bot/commit/8d8e260e7a9e4f9840a62e62517c486be325c995) |
 | v0.6.12 | [`v0.6.12`](https://github.com/chainguard-actions/nyaomaru-changelog-bot/tree/v0.6.12) | [`4e1d2d6`](https://github.com/nyaomaru/changelog-bot/commit/4e1d2d68551a256a35554e3b42b2417e2b608f17) |
 | v0.6.13 | [`v0.6.13`](https://github.com/chainguard-actions/nyaomaru-changelog-bot/tree/v0.6.13) | [`1312c1c`](https://github.com/nyaomaru/changelog-bot/commit/1312c1cebb3ea9e7336f851dcd40a08b09950db4) |
+| v0.6.14 | [`v0.6.14`](https://github.com/chainguard-actions/nyaomaru-changelog-bot/tree/v0.6.14) | [`77dfdac`](https://github.com/nyaomaru/changelog-bot/commit/77dfdacf969f71644845b91be9812b34b5ae72ea) |
 | v0.6.2 | [`v0.6.2`](https://github.com/chainguard-actions/nyaomaru-changelog-bot/tree/v0.6.2) | [`c5f6117`](https://github.com/nyaomaru/changelog-bot/commit/c5f611708171c88d292656004b48d5c6342b8ed1) |
 | v0.6.4 | [`v0.6.4`](https://github.com/chainguard-actions/nyaomaru-changelog-bot/tree/v0.6.4) | [`99b9bdd`](https://github.com/nyaomaru/changelog-bot/commit/99b9bdd9f68e10a1c3def5f7dc05d2c114a5d682) |
 | v0.6.5 | [`v0.6.5`](https://github.com/chainguard-actions/nyaomaru-changelog-bot/tree/v0.6.5) | [`6af81a9`](https://github.com/nyaomaru/changelog-bot/commit/6af81a9665def4c947cf54854af4dac0a47dd57f) |
