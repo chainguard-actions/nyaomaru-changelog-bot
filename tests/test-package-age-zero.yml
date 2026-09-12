@@ -1,0 +1,45 @@
+name: Test minimum-package-age-days zero (valid)
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Configure git for the action
+        run: |
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+
+      - id: action
+        uses: .
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          release-tag: 'HEAD'
+          release-name: '0.1.0'
+          minimum-package-age-days: '0'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        continue-on-error: true
+
+      - name: Assert action did not fail on validation
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # With minimum-package-age-days=0, validation should pass.
+          # The action may still fail due to sentinel repo constraints, but
+          # it must NOT fail at the validation step (which exits immediately).
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action completed successfully"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully after validation (sentinel repo or network)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi

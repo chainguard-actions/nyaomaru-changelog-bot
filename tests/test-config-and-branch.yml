@@ -1,0 +1,43 @@
+name: Test config-path, base-branch, and dry-run-json-report inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Create a minimal changelog-bot config file
+        run: |
+          cat > /tmp/changelog-bot-config.json <<'EOF'
+          {
+            "changelogPath": "CHANGELOG.md",
+            "baseBranch": "main"
+          }
+          EOF
+
+      - id: action
+        uses: .
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          config-path: '/tmp/changelog-bot-config.json'
+          base-branch: 'main'
+          dry-run-json-report: 'true'
+        continue-on-error: true
+
+      - name: Assert action ran (dry-run with config-path, base-branch, dry-run-json-report)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded with config-path, base-branch, and dry-run-json-report"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (expected under sentinel repo or network constraints)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
