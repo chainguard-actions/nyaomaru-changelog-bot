@@ -1,4 +1,4 @@
-name: Test provider and require-provider inputs
+name: Test instructions and instructions-file inputs
 on:
   workflow_dispatch:
 jobs:
@@ -6,21 +6,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create instructions fixture file
+        run: |
+          echo 'Group changes by type. Use concise language.' > /tmp/changelog-instructions.txt
       - id: action
         uses: .
         continue-on-error: true
         with:
           dry-run: 'true'
           no-ai: 'true'
-          provider: 'openai'
-          require-provider: 'false'
-      - name: Assert action ran (provider and require-provider inputs)
+          instructions: 'Group changes by type.'
+          instructions-file: /tmp/changelog-instructions.txt
+      - name: Assert action ran (instructions and instructions-file inputs)
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
           if [ "$OUTCOME" = "success" ]; then
-            echo "PASS: action succeeded with provider and require-provider inputs"
+            echo "PASS: action succeeded with instructions inputs"
           elif [ "$OUTCOME" = "failure" ]; then
             echo "PASS: action failed gracefully (expected under sentinel repo or network constraints)"
           else
