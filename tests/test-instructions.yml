@@ -1,4 +1,4 @@
-name: Test why, why-max-prs, why-max-chars-per-pr, why-confidence, why-label inputs
+name: Test instructions and instructions-file inputs
 on:
   workflow_dispatch:
 jobs:
@@ -10,20 +10,17 @@ jobs:
         uses: .
         continue-on-error: true
         with:
-          why: 'true'
-          why-max-prs: '5'
-          why-max-chars-per-pr: '2000'
-          why-confidence: 'medium'
-          why-label: 'Why'
+          instructions: 'Group changes by feature area. Be concise.'
+          instructions-file: ${{ github.workspace }}/hardened/tests/fixtures/instructions.txt
           dry-run: 'true'
           no-ai: 'true'
-      - name: Assert action ran (why-related inputs accepted)
+      - name: Assert action ran (instructions and instructions-file inputs accepted)
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
           if [ "$OUTCOME" = "success" ]; then
-            echo "PASS: action succeeded with why-related inputs"
+            echo "PASS: action succeeded with instructions and instructions-file inputs"
           elif [ "$OUTCOME" = "failure" ]; then
             echo "PASS: action failed gracefully (sentinel repo or network issue expected)"
           else

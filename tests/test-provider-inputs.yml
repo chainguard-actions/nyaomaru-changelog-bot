@@ -1,4 +1,4 @@
-name: Test provider, require-provider, and fail-on-llm-error inputs
+name: Test provider, require-provider, fail-on-llm-error, dry-run-json-report inputs
 on:
   workflow_dispatch:
 jobs:
@@ -6,12 +6,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          fetch-depth: 0
-      - name: Configure git user
-        run: |
-          git config user.email "test@example.com"
-          git config user.name "Test User"
       - id: action
         uses: .
         continue-on-error: true
@@ -19,15 +13,16 @@ jobs:
           provider: openai
           require-provider: 'false'
           fail-on-llm-error: 'false'
+          dry-run-json-report: 'true'
           dry-run: 'true'
           no-ai: 'true'
-      - name: Assert action ran (provider inputs accepted)
+      - name: Assert action ran (provider-related inputs accepted)
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
           if [ "$OUTCOME" = "success" ]; then
-            echo "PASS: action succeeded with provider inputs"
+            echo "PASS: action succeeded with provider-related inputs"
           elif [ "$OUTCOME" = "failure" ]; then
             echo "PASS: action failed gracefully (sentinel repo or network issue expected)"
           else
