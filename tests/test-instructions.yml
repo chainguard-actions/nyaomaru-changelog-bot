@@ -1,4 +1,4 @@
-name: Test why-related inputs
+name: Test instructions and instructions-file inputs
 on:
   workflow_dispatch:
 jobs:
@@ -6,6 +6,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create instructions file
+        run: |
+          echo "Group changes by component. Use concise bullet points." > /tmp/changelog-instructions.txt
       - id: action
         uses: .
         continue-on-error: true
@@ -13,18 +16,15 @@ jobs:
           dry-run: 'true'
           no-ai: 'true'
           release-tag: HEAD
-          why: 'true'
-          why-max-prs: '5'
-          why-max-chars-per-pr: '2000'
-          why-confidence: medium
-          why-label: 'Why'
-      - name: Assert action ran (why-related inputs)
+          instructions: 'Use concise bullet points for each change.'
+          instructions-file: /tmp/changelog-instructions.txt
+      - name: Assert action ran (instructions and instructions-file)
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
           if [ "$OUTCOME" = "success" ]; then
-            echo "PASS: action succeeded with why inputs"
+            echo "PASS: action succeeded with instructions inputs"
           elif [ "$OUTCOME" = "failure" ]; then
             echo "PASS: action failed gracefully (expected under sentinel repo or missing npm package)"
           else

@@ -1,4 +1,4 @@
-name: Test why-related inputs
+name: Test base-branch and config-path inputs
 on:
   workflow_dispatch:
 jobs:
@@ -10,21 +10,18 @@ jobs:
         uses: .
         continue-on-error: true
         with:
+          base-branch: main
+          config-path: hardened/tests/fixtures/changelog-bot-config.json
           dry-run: 'true'
           no-ai: 'true'
           release-tag: HEAD
-          why: 'true'
-          why-max-prs: '5'
-          why-max-chars-per-pr: '2000'
-          why-confidence: medium
-          why-label: 'Why'
-      - name: Assert action ran (why-related inputs)
+      - name: Assert action ran (dry-run with base-branch and config-path)
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
           if [ "$OUTCOME" = "success" ]; then
-            echo "PASS: action succeeded with why inputs"
+            echo "PASS: action succeeded in dry-run mode"
           elif [ "$OUTCOME" = "failure" ]; then
             echo "PASS: action failed gracefully (expected under sentinel repo or missing npm package)"
           else
