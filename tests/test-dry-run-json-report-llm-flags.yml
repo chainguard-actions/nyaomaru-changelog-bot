@@ -1,4 +1,4 @@
-name: Test why-related inputs
+name: Test dry-run-json-report, fail-on-llm-error, and require-provider inputs
 on:
   workflow_dispatch:
 jobs:
@@ -9,21 +9,19 @@ jobs:
       - id: action
         uses: .
         with:
-          why: "true"
-          why-max-prs: "5"
-          why-max-chars-per-pr: "1000"
-          why-confidence: medium
-          why-label: "Why"
           dry-run: "true"
+          dry-run-json-report: "true"
+          fail-on-llm-error: "false"
+          require-provider: "false"
           no-ai: "true"
         continue-on-error: true
-      - name: Assert action ran (why-related inputs)
+      - name: Assert action ran (dry-run-json-report, fail-on-llm-error, require-provider)
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
           if [ "$OUTCOME" = "success" ] || [ "$OUTCOME" = "failure" ]; then
-            echo "PASS: action ran with why, why-max-prs, why-max-chars-per-pr, why-confidence, and why-label inputs"
+            echo "PASS: action ran with dry-run-json-report, fail-on-llm-error, and require-provider inputs"
           else
             echo "FAIL: unexpected outcome '$OUTCOME'"
             exit 1
