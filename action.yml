@@ -102,7 +102,7 @@ runs:
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
     - name: Setup Node.js
-      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      uses: chainguard-actions/actions-setup-node@031fc9bd73e651da81e6a7294b2af29e64d5f39c # v4
       with:
         node-version: '22'
     - name: Setup pnpm

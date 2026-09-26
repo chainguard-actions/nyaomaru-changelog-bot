@@ -1,4 +1,4 @@
-name: Test dry-run with language and instructions inputs
+name: Test dry-run with config-path, instructions-file, release-body, and dry-run-json-report
 on:
   workflow_dispatch:
 jobs:
@@ -16,16 +16,17 @@ jobs:
         with:
           dry-run: 'true'
           no-ai: 'true'
-          language: 'en'
-          instructions: 'Group by feature and bugfix'
-          base-branch: 'main'
-      - name: Assert action ran (dry-run with language/instructions/base-branch)
+          dry-run-json-report: 'true'
+          config-path: 'hardened/tests/fixtures/changelog-bot.json'
+          instructions-file: 'hardened/tests/fixtures/instructions.txt'
+          release-body: 'This release includes bug fixes and improvements.'
+      - name: Assert action ran (dry-run with config-path, instructions-file, release-body, dry-run-json-report)
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
           if [ "$OUTCOME" = "success" ] || [ "$OUTCOME" = "failure" ]; then
-            echo "PASS: action ran with language, instructions, and base-branch inputs"
+            echo "PASS: action ran with config-path, instructions-file, release-body, and dry-run-json-report inputs"
           else
             echo "FAIL: unexpected outcome '$OUTCOME'"
             exit 1
