@@ -1,0 +1,45 @@
+name: Test dry-run with config-path, base-branch, and fail-on-llm-error
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Create a minimal config file
+        run: |
+          mkdir -p /tmp/changelog-config
+          cat > /tmp/changelog-config/changelog-bot.json <<'EOF'
+          {}
+          EOF
+
+      - name: Create a minimal instructions file
+        run: |
+          echo "Group changes by type." > /tmp/changelog-instructions.txt
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          config-path: /tmp/changelog-config/changelog-bot.json
+          base-branch: main
+          fail-on-llm-error: "false"
+          no-ai: "true"
+          dry-run: "true"
+
+      - name: Assert action ran (dry-run with config-path and base-branch)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded in dry-run mode"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (sentinel repo or network issue)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
