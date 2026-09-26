@@ -1,0 +1,36 @@
+name: Test dry-run with release and config options
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+
+      - name: Run changelog-bot with release and config options
+        id: action
+        uses: .
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          dry-run: 'true'
+          dry-run-json-report: 'false'
+          no-ai: 'true'
+          release-tag: 'HEAD'
+          release-name: '2.0.0-test'
+          release-body: 'Initial release with new features.'
+          base-branch: 'act-harness'
+          config-path: '${{ github.workspace }}/hardened/tests/fixtures/changelog-bot-config.json'
+          instructions: 'Group by feature and fix.'
+          instructions-file: '${{ github.workspace }}/hardened/tests/fixtures/instructions.txt'
+
+      - name: Assert action completed successfully
+        run: |
+          echo "PASS: action completed with release and config options without error"

@@ -1,5 +1,4 @@
 {
   "changelogPath": "CHANGELOG.md",
-  "noAi": true,
-  "dryRun": true
+  "baseBranch": "act-harness"
 }
