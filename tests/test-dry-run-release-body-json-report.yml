@@ -1,4 +1,4 @@
-name: Test dry-run with config-path input
+name: Test dry-run with release-body and dry-run-json-report inputs
 on:
   workflow_dispatch:
 jobs:
@@ -18,14 +18,15 @@ jobs:
         with:
           dry-run: 'true'
           no-ai: 'true'
-          config-path: '${{ github.workspace }}/hardened/tests/fixtures/changelog-bot-config.json'
-      - name: Assert action ran (dry-run with config-path)
+          release-body: 'Initial release with core features.'
+          dry-run-json-report: 'true'
+      - name: Assert action ran (dry-run with release-body and json-report)
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
           if [ "$OUTCOME" = "success" ]; then
-            echo "PASS: action succeeded in dry-run mode with config-path"
+            echo "PASS: action succeeded in dry-run mode with release-body and dry-run-json-report"
           elif [ "$OUTCOME" = "failure" ]; then
             echo "PASS: action failed gracefully (expected under sentinel repo or network constraints)"
           else

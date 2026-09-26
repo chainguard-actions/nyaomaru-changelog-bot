@@ -1,4 +1,3 @@
 {
-  "changelogPath": "CHANGELOG.md",
-  "baseBranch": "main"
+  "changelogPath": "CHANGELOG.md"
 }
