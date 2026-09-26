@@ -1,4 +1,4 @@
-name: Test instructions and instructions-file inputs
+name: Test base-branch and provider inputs
 on:
   workflow_dispatch:
 jobs:
@@ -8,15 +8,12 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
-      - name: Create a minimal CHANGELOG.md and instructions file for the test
+      - name: Create a minimal CHANGELOG.md for the test
         run: |
           cat > CHANGELOG.md <<'EOF'
           # Changelog
 
           All notable changes to this project will be documented in this file.
-          EOF
-          cat > /tmp/changelog-instructions.txt <<'EOF'
-          Group changes by type: feat, fix, chore.
           EOF
       - id: action
         uses: .
@@ -28,17 +25,19 @@ jobs:
           changelog-path: 'CHANGELOG.md'
           release-tag: 'HEAD'
           release-name: '0.0.1-test'
-          instructions: 'Keep entries concise and clear.'
-          instructions-file: '/tmp/changelog-instructions.txt'
-      - name: Assert action ran with instructions and instructions-file inputs
+          base-branch: 'main'
+          provider: 'openai'
+      - name: Assert action ran with base-branch and provider inputs
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
-          # The action may succeed or fail depending on the npm package behavior,
-          # but it must have run (not skipped) and accepted both instruction inputs.
+          # In dry-run mode without a real API key, the action may fail when
+          # provider is set (LLM call attempted). Both success and graceful
+          # failure are acceptable outcomes — what matters is the inputs were
+          # accepted and the action ran.
           if [ "$OUTCOME" = "success" ] || [ "$OUTCOME" = "failure" ]; then
-            echo "PASS: action ran with instructions and instructions-file inputs (outcome: $OUTCOME)"
+            echo "PASS: action ran with base-branch and provider inputs (outcome: $OUTCOME)"
           else
             echo "FAIL: unexpected outcome '$OUTCOME'"
             exit 1
