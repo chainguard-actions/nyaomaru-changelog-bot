@@ -1,4 +1,4 @@
-name: Test why-related inputs
+name: Test config-path and base-branch inputs
 on:
   workflow_dispatch:
 jobs:
@@ -14,7 +14,13 @@ jobs:
           git config user.email "test@example.com"
           git config user.name "Test User"
 
-      - name: Run changelog-bot with why inputs in dry-run no-ai mode
+      - name: Create a minimal changelog-bot config file
+        run: |
+          cat > /tmp/test-changelog-bot-config.json << 'EOF'
+          {}
+          EOF
+
+      - name: Run changelog-bot with config-path and base-branch inputs in dry-run no-ai mode
         uses: .
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -23,12 +29,9 @@ jobs:
           no-ai: 'true'
           release-tag: 'HEAD'
           release-name: '0.0.0-test'
-          why: 'false'
-          why-max-prs: '10'
-          why-max-chars-per-pr: '2000'
-          why-confidence: 'medium'
-          why-label: 'Why'
+          config-path: '/tmp/test-changelog-bot-config.json'
+          base-branch: 'main'
 
       - name: Assert action completed successfully
         run: |
-          echo "PASS: action accepted why-related inputs without error"
+          echo "PASS: action accepted config-path and base-branch inputs without error"

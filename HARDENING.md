@@ -10,13 +10,13 @@
 
 **Harden Agent Version:** `2`
 
-Action **nyaomaru--changelog-bot/v0.6.6** was hardened automatically. 1 finding(s) were identified and resolved across 2 iteration(s).
+Action **nyaomaru--changelog-bot/v0.6.6** was hardened automatically. 1 finding(s) were identified and resolved across 1 iteration(s).
 
 ## Findings Fixed
 
 ### unpinned-uses (severity: high)
 
-The action uses `actions/setup-node@v4`, which is pinned to a mutable tag (`@v4`) rather than an immutable 40-character commit SHA. This means the referenced action could be silently replaced with a different (potentially malicious) version without any change to this file, creating a supply-chain risk.
+The action uses `actions/setup-node@v4`, which is pinned to a mutable tag rather than a full 40-character SHA commit hash. This is a supply-chain risk: if the tag is moved to a different commit (maliciously or accidentally), the action will silently execute different code. It should be pinned to a specific commit SHA, e.g. `actions/setup-node@1d0ff469b4a3d2f5b32d7d2b9b9b9b9b9b9b9b9b # v4`.
 
 Locations:
 
@@ -30,25 +30,5 @@ Locations:
 
 **Notes:**
 
-Pinned `actions/setup-node@v4` to its full commit SHA `49933ea5288caeca8642d1e84afbd3f7d6820020` in hardened/action/action.yml (line 76). The original tag is preserved as a trailing comment (`# v4`) for readability.
-
-### Iteration 2
-
-**Fixes applied:** unpinned-uses, script-injection, missing-permissions
-
-**Notes:**
-
-Fixed all 6 workflow files:
-
-1. build.yaml: Pinned actions/checkout@v4, jdx/mise-action@v2, actions/cache@v4 to full SHAs; added `permissions: contents: read`.
-
-2. changelog.yaml: Pinned actions/checkout@v4 and nyaomaru/changelog-bot@v0 to full SHAs.
-
-3. major-tag-update.yaml: Pinned actions/checkout@v4 to full SHA; added `permissions: contents: write`; fixed script injection by moving `github.event.release.tag_name` into step env block as TAG_NAME.
-
-4. npm-publish.yaml: Pinned actions/checkout@v4, actions/setup-node@v4, jdx/mise-action@v2, actions/cache@v4 to full SHAs.
-
-5. test.yaml: Pinned actions/checkout@v4, jdx/mise-action@v2, actions/cache@v4 to full SHAs; added `permissions: contents: read`.
-
-6. version-bump.yaml: Pinned actions/checkout@v4, jdx/mise-action@v2, actions/cache@v4 to full SHAs; fixed all 5 script injection points by moving inputs.release_type and env.new_version into per-step env blocks and referencing them as plain shell variables ($RELEASE_TYPE, $NEW_VERSION).
+Replaced `actions/setup-node@v4` with `actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4` in hardened/action/action.yml at line 76. The full 40-character commit SHA was resolved via the GitHub API and the mutable tag is preserved as a comment for readability.
 
