@@ -6,17 +6,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Run changelog-bot with instructions and instructions-file
-        id: action
+        with:
+          fetch-depth: 0
+
+      - name: Create a minimal CHANGELOG and instructions file
+        run: |
+          echo "# Changelog" > CHANGELOG.md
+          echo "Group fixes together." > changelog-instructions.txt
+          git add CHANGELOG.md changelog-instructions.txt
+          git commit -m "test: add CHANGELOG.md and instructions file" --allow-empty
+
+      - id: action
         uses: .
         with:
-          instructions: 'Group by feature and bugfix. Be concise.'
-          instructions-file: '${{ github.workspace }}/hardened/tests/fixtures/changelog-instructions.txt'
           dry-run: 'true'
           no-ai: 'true'
           release-tag: 'HEAD'
+          release-name: '0.0.0-test'
+          instructions: 'Keep entries concise.'
+          instructions-file: 'changelog-instructions.txt'
         env:
           GITHUB_TOKEN: ${{ github.token }}
-      - name: Assert action completed
+
+      - name: Assert action completed successfully with instructions inputs
         run: |
           echo "PASS: action completed with instructions and instructions-file inputs"

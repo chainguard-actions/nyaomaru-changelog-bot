@@ -1,4 +1,4 @@
-name: Test base-branch, language, and release-body inputs
+name: Test dry-run-json-report, fail-on-llm-error, and require-provider inputs
 on:
   workflow_dispatch:
 jobs:
@@ -22,12 +22,12 @@ jobs:
           no-ai: 'true'
           release-tag: 'HEAD'
           release-name: '0.0.0-test'
-          base-branch: 'main'
-          language: 'en'
-          release-body: 'Test release notes body'
+          dry-run-json-report: 'false'
+          fail-on-llm-error: 'false'
+          require-provider: 'false'
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Assert action completed successfully
         run: |
-          echo "PASS: action completed with base-branch, language, and release-body inputs"
+          echo "PASS: action completed with dry-run-json-report, fail-on-llm-error, and require-provider inputs"

@@ -1,4 +1,4 @@
-name: Test config-path input
+name: Test why-related inputs
 on:
   workflow_dispatch:
 jobs:
@@ -9,12 +9,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Create a minimal CHANGELOG and config file
+      - name: Create a minimal CHANGELOG for the test
         run: |
           echo "# Changelog" > CHANGELOG.md
-          echo '{}' > changelog-bot.json
-          git add CHANGELOG.md changelog-bot.json
-          git commit -m "test: add CHANGELOG.md and config file" --allow-empty
+          git add CHANGELOG.md
+          git commit -m "test: add CHANGELOG.md" --allow-empty
 
       - id: action
         uses: .
@@ -23,10 +22,14 @@ jobs:
           no-ai: 'true'
           release-tag: 'HEAD'
           release-name: '0.0.0-test'
-          config-path: 'changelog-bot.json'
+          why: 'false'
+          why-max-prs: '5'
+          why-max-chars-per-pr: '1000'
+          why-confidence: 'medium'
+          why-label: 'Why'
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
-      - name: Assert action completed successfully with config-path
+      - name: Assert action completed successfully with why inputs
         run: |
-          echo "PASS: action completed with config-path input"
+          echo "PASS: action completed with why-related inputs"
