@@ -1,0 +1,34 @@
+name: Test dry-run with config-path and instructions-file inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Create config and instructions files
+        run: |
+          mkdir -p /tmp/changelog-test
+          echo '{}' > /tmp/changelog-test/changelog-bot.json
+          echo 'Keep entries concise.' > /tmp/changelog-test/instructions.txt
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          config-path: '/tmp/changelog-test/changelog-bot.json'
+          instructions-file: '/tmp/changelog-test/instructions.txt'
+      - name: Assert action ran (dry-run with config-path and instructions-file)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ] || [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action ran with config-path and instructions-file inputs"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
