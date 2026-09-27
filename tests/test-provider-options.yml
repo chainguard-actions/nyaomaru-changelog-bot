@@ -1,4 +1,4 @@
-name: Test why, why-max-prs, why-max-chars-per-pr, why-confidence, and why-label inputs
+name: Test provider, fail-on-llm-error, and require-provider inputs
 on:
   workflow_dispatch:
 jobs:
@@ -21,24 +21,21 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           dry-run: 'true'
-          no-ai: 'true'
           release-tag: 'HEAD'
           release-name: '1.0.0-test'
-          why: 'true'
-          why-max-prs: '5'
-          why-max-chars-per-pr: '1000'
-          why-confidence: 'low'
-          why-label: 'Why'
+          provider: 'openai'
+          fail-on-llm-error: 'false'
+          require-provider: 'false'
 
-      - name: Assert action ran with why options
+      - name: Assert action ran with provider options
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
           if [ "$OUTCOME" = "success" ]; then
-            echo "PASS: action completed successfully with why options"
+            echo "PASS: action completed successfully with provider options"
           elif [ "$OUTCOME" = "failure" ]; then
-            echo "PASS: action failed gracefully (expected under sentinel repo or network constraints)"
+            echo "PASS: action failed gracefully (expected: no API key set, sentinel repo, or network constraints)"
           else
             echo "FAIL: unexpected outcome '$OUTCOME'"
             exit 1

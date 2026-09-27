@@ -1,4 +1,4 @@
-name: Test why, why-max-prs, why-max-chars-per-pr, why-confidence, and why-label inputs
+name: Test instructions-file input
 on:
   workflow_dispatch:
 jobs:
@@ -14,6 +14,10 @@ jobs:
           git config user.email "test@example.com"
           git config user.name "Test User"
 
+      - name: Create instructions file
+        run: |
+          echo "Group changes by type. Focus on user-facing changes." > /tmp/changelog-instructions.txt
+
       - id: action
         uses: .
         continue-on-error: true
@@ -24,19 +28,15 @@ jobs:
           no-ai: 'true'
           release-tag: 'HEAD'
           release-name: '1.0.0-test'
-          why: 'true'
-          why-max-prs: '5'
-          why-max-chars-per-pr: '1000'
-          why-confidence: 'low'
-          why-label: 'Why'
+          instructions-file: '/tmp/changelog-instructions.txt'
 
-      - name: Assert action ran with why options
+      - name: Assert action ran with instructions-file
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
           if [ "$OUTCOME" = "success" ]; then
-            echo "PASS: action completed successfully with why options"
+            echo "PASS: action completed successfully with instructions-file"
           elif [ "$OUTCOME" = "failure" ]; then
             echo "PASS: action failed gracefully (expected under sentinel repo or network constraints)"
           else
