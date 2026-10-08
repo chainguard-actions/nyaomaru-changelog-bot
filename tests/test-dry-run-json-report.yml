@@ -1,4 +1,4 @@
-name: Test why-related options
+name: Test dry-run-json-report option
 on:
   workflow_dispatch:
 jobs:
@@ -14,7 +14,7 @@ jobs:
           git config user.email "test@example.com"
           git config user.name "Test User"
 
-      - name: Run changelog-bot with why options
+      - name: Run changelog-bot with dry-run-json-report enabled
         id: action
         uses: .
         continue-on-error: true
@@ -25,11 +25,7 @@ jobs:
           no-ai: 'true'
           release-tag: 'HEAD'
           release-name: '1.0.0-test'
-          why: 'true'
-          why-max-prs: '5'
-          why-max-chars-per-pr: '1000'
-          why-confidence: 'medium'
-          why-label: 'Why'
+          dry-run-json-report: 'true'
 
       - name: Assert action ran (success or graceful failure on sentinel repo)
         env:
@@ -37,7 +33,7 @@ jobs:
         run: |
           echo "outcome: $OUTCOME"
           if [ "$OUTCOME" = "success" ]; then
-            echo "PASS: action completed with why options"
+            echo "PASS: action completed with dry-run-json-report"
           elif [ "$OUTCOME" = "failure" ]; then
             echo "PASS: action failed gracefully (sentinel repo is not resolvable)"
           else
