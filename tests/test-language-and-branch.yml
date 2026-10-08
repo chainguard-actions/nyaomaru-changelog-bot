@@ -1,4 +1,4 @@
-name: Test why extraction inputs
+name: Test language, base-branch, release-body, and instructions inputs
 on:
   workflow_dispatch:
 jobs:
@@ -18,12 +18,11 @@ jobs:
         with:
           dry-run: 'true'
           no-ai: 'true'
-          why: 'false'
-          why-max-prs: '10'
-          why-max-chars-per-pr: '500'
-          why-confidence: 'medium'
-          why-label: 'Why'
-      - name: Assert action ran (dry-run with why options)
+          base-branch: 'main'
+          language: 'en'
+          release-body: 'Test release notes body'
+          instructions: 'Group by feature and bugfix'
+      - name: Assert action ran (dry-run with language/base-branch/release-body/instructions)
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
