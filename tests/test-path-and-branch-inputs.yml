@@ -1,4 +1,4 @@
-name: Test instructions and dry-run-json-report inputs
+name: Test path and branch inputs
 on:
   workflow_dispatch:
 jobs:
@@ -14,10 +14,10 @@ jobs:
           git config user.email "test@example.com"
           git config user.name "Test User"
 
-      - name: Create instructions fixture file
+      - name: Create fixture config file
         run: |
           mkdir -p /tmp/changelog-bot-test
-          echo 'Group commits by type. Use clear language.' > /tmp/changelog-bot-test/instructions.txt
+          echo '{}' > /tmp/changelog-bot-test/changelog-bot.json
 
       - id: action
         uses: .
@@ -29,17 +29,17 @@ jobs:
           no-ai: 'true'
           release-tag: 'HEAD'
           release-name: '1.0.0'
-          instructions: 'Group commits by type.'
-          instructions-file: '/tmp/changelog-bot-test/instructions.txt'
-          dry-run-json-report: 'true'
+          changelog-path: 'CHANGELOG.md'
+          config-path: '/tmp/changelog-bot-test/changelog-bot.json'
+          base-branch: 'main'
 
-      - name: Assert action ran with instructions inputs
+      - name: Assert action ran with path and branch inputs
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
           if [ "$OUTCOME" = "success" ]; then
-            echo "PASS: action completed successfully with instructions inputs"
+            echo "PASS: action completed successfully with path and branch inputs"
           elif [ "$OUTCOME" = "failure" ]; then
             echo "PASS: action failed gracefully (expected under sentinel repo or network constraints)"
           else
