@@ -1,4 +1,4 @@
-name: Test provider-related inputs
+name: Test why options inputs
 on:
   workflow_dispatch:
 jobs:
@@ -21,20 +21,22 @@ jobs:
           no-ai: 'true'
           release-tag: 'HEAD'
           release-name: '0.0.1-test'
-          provider: 'openai'
-          fail-on-llm-error: 'false'
-          require-provider: 'false'
+          why: 'true'
+          why-max-prs: '5'
+          why-max-chars-per-pr: '1000'
+          why-confidence: 'medium'
+          why-label: 'Why'
         env:
           GITHUB_TOKEN: ${{ github.token }}
         continue-on-error: true
 
-      - name: Assert action ran with provider inputs
+      - name: Assert action ran with why options
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
           if [ "$OUTCOME" = "success" ]; then
-            echo "PASS: action completed successfully with provider inputs"
+            echo "PASS: action completed successfully with why options"
           elif [ "$OUTCOME" = "failure" ]; then
             echo "PASS: action failed gracefully (expected under sentinel repo or network constraints)"
           else

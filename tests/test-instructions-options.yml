@@ -1,4 +1,4 @@
-name: Test config-path and instructions inputs
+name: Test instructions options inputs
 on:
   workflow_dispatch:
 jobs:
@@ -21,20 +21,19 @@ jobs:
           no-ai: 'true'
           release-tag: 'HEAD'
           release-name: '0.0.1-test'
-          config-path: 'hardened/tests/fixtures/changelog-bot.json'
-          instructions: 'Keep entries concise.'
-          instructions-file: 'hardened/tests/fixtures/instructions.txt'
+          instructions: 'Group changes by type: Features and Bug Fixes.'
+          instructions-file: '${{ github.workspace }}/hardened/tests/fixtures/instructions.txt'
         env:
           GITHUB_TOKEN: ${{ github.token }}
         continue-on-error: true
 
-      - name: Assert action ran with config and instructions inputs
+      - name: Assert action ran with instructions options
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
           if [ "$OUTCOME" = "success" ]; then
-            echo "PASS: action completed successfully with config and instructions inputs"
+            echo "PASS: action completed successfully with instructions options"
           elif [ "$OUTCOME" = "failure" ]; then
             echo "PASS: action failed gracefully (expected under sentinel repo or network constraints)"
           else
