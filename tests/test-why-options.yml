@@ -1,4 +1,4 @@
-name: Test dry-run with why-related inputs
+name: Test why extraction inputs
 on:
   workflow_dispatch:
 jobs:
@@ -8,20 +8,28 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
-      - name: Configure git user
+
+      - name: Configure git identity (required by action)
         run: |
           git config user.email "test@example.com"
           git config user.name "Test User"
-      - id: action
+
+      - name: Run action with why extraction inputs
+        id: action
         uses: .
         with:
           dry-run: 'true'
           no-ai: 'true'
+          release-tag: 'HEAD'
+          release-name: '1.0.0-test'
           why: 'false'
-          why-max-prs: '5'
-          why-max-chars-per-pr: '1000'
+          why-max-prs: '10'
+          why-max-chars-per-pr: '2000'
           why-confidence: 'medium'
           why-label: 'Why'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
       - name: Assert action completed successfully
         run: |
-          echo "PASS: action completed with why, why-max-prs, why-max-chars-per-pr, why-confidence, and why-label inputs"
+          echo "PASS: action completed without error with why extraction inputs"
