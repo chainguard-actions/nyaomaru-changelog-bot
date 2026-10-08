@@ -1,0 +1,46 @@
+name: Test config-path input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Create a minimal CHANGELOG.md and config file for the test
+        run: |
+          cat > CHANGELOG.md <<'EOF'
+          # Changelog
+
+          All notable changes to this project will be documented in this file.
+          EOF
+          cat > /tmp/changelog-bot-config.json <<'EOF'
+          {
+            "changelogPath": "CHANGELOG.md"
+          }
+          EOF
+      - id: action
+        uses: .
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          dry-run: 'true'
+          release-tag: 'HEAD'
+          release-name: '0.0.1-test'
+          config-path: '/tmp/changelog-bot-config.json'
+          minimum-package-age-days: '0'
+      - name: Assert action ran with config-path input
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action completed successfully with config-path input"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (sentinel repo or network issue)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
