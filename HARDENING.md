@@ -16,11 +16,11 @@ Action **nyaomaru--changelog-bot/v0.6.4** was hardened automatically. 1 finding(
 
 ### unpinned-uses (severity: high)
 
-The action.yml references `actions/setup-node@v4`, which uses a mutable tag (`@v4`) rather than a pinned 40-character commit SHA. This means the action could silently change if the tag is moved, enabling a supply-chain attack. It should be pinned to a full SHA, e.g. `actions/setup-node@1d0ff469b18977b4dc9a1d7a1b5e6a4e69b3c5a2 # v4`.
+The composite action step 'Setup Node.js' uses `actions/setup-node@v4`, which is a mutable tag reference rather than a pinned 40-character commit SHA. This means the action could be silently updated to a different (potentially malicious) version without any change to this file, creating a supply-chain risk. It should be pinned to a full SHA, e.g. `actions/setup-node@1d0ff469b12f2e6c5a1aa9a8e9f5e5e5e5e5e5e5 # v4`.
 
 Locations:
 
-- `action.yml:73`
+- `action.yml:89`
 
 ## Iteration Notes
 
@@ -30,5 +30,5 @@ Locations:
 
 **Notes:**
 
-Pinned `actions/setup-node@v4` to full commit SHA `actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4` in hardened/action/action.yml at line 73. SHA was resolved via lookup_action_sha.
+Pinned `actions/setup-node@v4` to its full commit SHA `actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4` in hardened/action/action.yml line 89. The mutable tag reference has been replaced with an immutable SHA while preserving the tag as a comment for readability.
 
