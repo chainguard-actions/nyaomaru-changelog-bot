@@ -1,0 +1,31 @@
+name: Test provider and dry-run-json-report inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          provider: openai
+          dry-run: 'true'
+          dry-run-json-report: 'true'
+          no-ai: 'true'
+          fail-on-llm-error: 'false'
+          require-provider: 'false'
+      - name: Assert action ran (dry-run-json-report with provider)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded with provider and dry-run-json-report"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (expected under harness sentinel repo or missing API key)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi

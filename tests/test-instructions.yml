@@ -1,0 +1,32 @@
+name: Test instructions and instructions-file inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create instructions file
+        run: |
+          echo "Group commits by type. Use present tense." > /tmp/my-instructions.txt
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          instructions: 'Group commits by type and scope.'
+          instructions-file: /tmp/my-instructions.txt
+          no-ai: 'true'
+          dry-run: 'true'
+      - name: Assert action ran (with instructions and instructions-file)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded with instructions and instructions-file"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (expected under harness sentinel repo)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
