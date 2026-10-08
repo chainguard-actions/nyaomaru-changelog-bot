@@ -1,4 +1,4 @@
-name: Test provider inputs (provider, fail-on-llm-error, require-provider)
+name: Test dry-run-json-report input
 on:
   workflow_dispatch:
 jobs:
@@ -13,19 +13,17 @@ jobs:
         uses: .
         continue-on-error: true
         with:
-          provider: openai
-          fail-on-llm-error: 'false'
-          require-provider: 'false'
           dry-run: 'true'
+          dry-run-json-report: 'true'
           no-ai: 'true'
 
-      - name: Assert action ran (dry-run with provider inputs)
+      - name: Assert action ran (dry-run with json-report)
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
           if [ "$OUTCOME" = "success" ]; then
-            echo "PASS: action succeeded with provider inputs"
+            echo "PASS: action succeeded with dry-run-json-report"
           elif [ "$OUTCOME" = "failure" ]; then
             echo "PASS: action failed gracefully (sentinel repo or npm resolution issue)"
           else
