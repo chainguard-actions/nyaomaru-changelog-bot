@@ -6,27 +6,44 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Create instructions fixture file
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity
         run: |
-          echo 'Group changes by type. Use concise language.' > /tmp/changelog-instructions.txt
-      - id: action
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+
+      - name: Run changelog-bot with instructions in dry-run mode
+        id: action-instructions
         uses: .
-        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           dry-run: 'true'
           no-ai: 'true'
-          instructions: 'Group changes by type.'
-          instructions-file: /tmp/changelog-instructions.txt
-      - name: Assert action ran (instructions and instructions-file inputs)
-        env:
-          OUTCOME: ${{ steps.action.outcome }}
+          release-tag: 'HEAD'
+          release-name: '1.0.0'
+          instructions: 'Group changes by type and use concise language.'
+
+      - name: Assert instructions step completed successfully
         run: |
-          echo "outcome: $OUTCOME"
-          if [ "$OUTCOME" = "success" ]; then
-            echo "PASS: action succeeded with instructions inputs"
-          elif [ "$OUTCOME" = "failure" ]; then
-            echo "PASS: action failed gracefully (expected under sentinel repo or network constraints)"
-          else
-            echo "FAIL: unexpected outcome '$OUTCOME'"
-            exit 1
-          fi
+          echo "Action completed without error (instructions input accepted)"
+          echo "PASS"
+
+      - name: Run changelog-bot with instructions-file in dry-run mode
+        id: action-instructions-file
+        uses: .
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          release-tag: 'HEAD'
+          release-name: '1.0.0'
+          instructions-file: '${{ github.workspace }}/hardened/tests/fixtures/instructions.txt'
+
+      - name: Assert instructions-file step completed successfully
+        run: |
+          echo "Action completed without error (instructions-file input accepted)"
+          echo "PASS"

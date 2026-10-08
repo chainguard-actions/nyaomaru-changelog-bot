@@ -1,4 +1,4 @@
-name: Test instructions inputs (instructions, instructions-file, fail-on-llm-error, require-provider)
+name: Test config-path input
 on:
   workflow_dispatch:
 jobs:
@@ -14,7 +14,7 @@ jobs:
           git config user.email "test@example.com"
           git config user.name "Test User"
 
-      - name: Run changelog-bot with instructions inputs in dry-run no-ai mode
+      - name: Run changelog-bot with config-path in dry-run mode
         id: action
         uses: .
         env:
@@ -24,12 +24,9 @@ jobs:
           no-ai: 'true'
           release-tag: 'HEAD'
           release-name: '1.0.0'
-          instructions: 'Group changes by type and use concise language.'
-          instructions-file: '${{ github.workspace }}/hardened/tests/fixtures/instructions.txt'
-          fail-on-llm-error: 'false'
-          require-provider: 'false'
+          config-path: '${{ github.workspace }}/hardened/tests/fixtures/changelog-bot-config.json'
 
       - name: Assert action completed successfully
         run: |
-          echo "Action completed without error (instructions, instructions-file, fail-on-llm-error, require-provider inputs exercised)"
+          echo "Action completed without error (config-path input accepted)"
           echo "PASS"

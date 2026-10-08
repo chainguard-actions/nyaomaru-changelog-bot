@@ -1,4 +1,4 @@
-name: Test provider, require-provider, fail-on-llm-error, and dry-run-json-report inputs
+name: Test changelog-path and base-branch inputs
 on:
   workflow_dispatch:
 jobs:
@@ -14,7 +14,7 @@ jobs:
           git config user.email "test@example.com"
           git config user.name "Test User"
 
-      - name: Run changelog-bot with provider flags in dry-run no-ai mode
+      - name: Run changelog-bot with changelog-path and base-branch in dry-run mode
         id: action
         uses: .
         env:
@@ -24,12 +24,10 @@ jobs:
           no-ai: 'true'
           release-tag: 'HEAD'
           release-name: '1.0.0'
-          provider: 'openai'
-          require-provider: 'false'
-          fail-on-llm-error: 'false'
-          dry-run-json-report: 'true'
+          changelog-path: 'CHANGELOG.md'
+          base-branch: 'main'
 
       - name: Assert action completed successfully
         run: |
-          echo "Action completed without error (provider, require-provider, fail-on-llm-error, dry-run-json-report inputs accepted)"
+          echo "Action completed without error (changelog-path and base-branch inputs accepted)"
           echo "PASS"
