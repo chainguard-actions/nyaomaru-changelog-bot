@@ -1,4 +1,4 @@
-name: Test WHY extraction inputs
+name: Test why, why-max-prs, why-max-chars-per-pr, why-confidence, and why-label inputs
 on:
   workflow_dispatch:
 jobs:
@@ -8,9 +8,9 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
-
       - id: action
         uses: .
+        continue-on-error: true
         with:
           dry-run: 'true'
           no-ai: 'true'
@@ -19,17 +19,15 @@ jobs:
           why-max-chars-per-pr: '1000'
           why-confidence: 'medium'
           why-label: 'Why'
-        continue-on-error: true
-
-      - name: Assert action ran (dry-run with why options)
+      - name: Assert action ran or failed gracefully
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
           if [ "$OUTCOME" = "success" ]; then
-            echo "PASS: action succeeded with why options"
+            echo "PASS: action succeeded with why-related inputs"
           elif [ "$OUTCOME" = "failure" ]; then
-            echo "PASS: action failed gracefully (expected under sentinel repo or network constraints)"
+            echo "PASS: action failed gracefully (expected under sentinel repo)"
           else
             echo "FAIL: unexpected outcome '$OUTCOME'"
             exit 1
