@@ -29,6 +29,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 | v0.7.0 | [`v0.7.0`](https://github.com/chainguard-actions/nyaomaru-changelog-bot/tree/v0.7.0) | [`491f220`](https://github.com/nyaomaru/changelog-bot/commit/491f220589bc7860605efb33bb2c64256a98bc94) |
 | v0.8.0 | [`v0.8.0`](https://github.com/chainguard-actions/nyaomaru-changelog-bot/tree/v0.8.0) | [`20b96c9`](https://github.com/nyaomaru/changelog-bot/commit/20b96c98d6e4b61466c9f8e3911435f78975692e) |
 | v0.9.0 | [`v0.9.0`](https://github.com/chainguard-actions/nyaomaru-changelog-bot/tree/v0.9.0) | [`7cbd36c`](https://github.com/nyaomaru/changelog-bot/commit/7cbd36cfb2a705e1a23e890bdb062e1ab2ab3a17) |
+| v0.9.1 | [`v0.9.1`](https://github.com/chainguard-actions/nyaomaru-changelog-bot/tree/v0.9.1) | [`770f545`](https://github.com/nyaomaru/changelog-bot/commit/770f545727a96d730a27a125cabdab4571447bd0) |
 
 ## Privacy
 
