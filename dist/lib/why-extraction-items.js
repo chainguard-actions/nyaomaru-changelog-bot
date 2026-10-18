@@ -1,0 +1,54 @@
+import { WHY_MAX_TOTAL_PAYLOAD_CHARS } from '../constants/why.js';
+import { preprocessWhyPrBody } from '../utils/why-preprocess.js';
+/**
+ * Fetch and preprocess PR descriptions selected from changelog bullets.
+ * @param params GitHub lookup dependencies and per-PR candidate limit.
+ * @param targets Authoritative PR targets selected from the changelog.
+ * @returns Trusted provider inputs and collection diagnostics.
+ */
+export async function collectWhyExtractionItems(params, targets) {
+    const result = {
+        items: [],
+        prBodiesFetched: 0,
+        skippedLowTrust: 0,
+        fallbackReasons: [],
+    };
+    for (const target of targets) {
+        const details = await params.fetchPRDetails(params.owner, params.repo, target.prNumber, params.token, params.githubApiBase);
+        if (!details) {
+            result.fallbackReasons.push(`Skipped PR #${target.prNumber}: PR details unavailable`);
+            continue;
+        }
+        result.prBodiesFetched += 1;
+        const preprocessed = preprocessWhyPrBody(target, details, {
+            maxCharsPerPr: params.maxCharsPerPr,
+        });
+        if (preprocessed.item) {
+            result.items.push(preprocessed.item);
+            continue;
+        }
+        if (preprocessed.lowTrust)
+            result.skippedLowTrust += 1;
+        if (preprocessed.skippedReason) {
+            result.fallbackReasons.push(preprocessed.skippedReason);
+        }
+    }
+    return result;
+}
+/**
+ * Bound provider inputs by the configured total payload limit.
+ * @param items Trusted per-PR WHY candidates.
+ * @returns Leading items that fit within the total character budget.
+ */
+export function truncateWhyPayloadItems(items) {
+    const boundedItems = [];
+    let usedChars = 0;
+    for (const item of items) {
+        const itemChars = item.candidates.join('\n').length;
+        if (usedChars + itemChars > WHY_MAX_TOTAL_PAYLOAD_CHARS)
+            break;
+        boundedItems.push(item);
+        usedChars += itemChars;
+    }
+    return boundedItems;
+}

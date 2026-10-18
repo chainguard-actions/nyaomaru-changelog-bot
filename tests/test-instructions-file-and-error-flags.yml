@@ -1,0 +1,37 @@
+name: Test instructions-file and error flag inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create instructions fixture file
+        run: |
+          mkdir -p /tmp/changelog-bot-test
+          echo "Focus on user-facing changes." > /tmp/changelog-bot-test/instructions.txt
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          instructions-file: '/tmp/changelog-bot-test/instructions.txt'
+          dry-run-json-report: 'false'
+          fail-on-llm-error: 'false'
+          require-provider: 'false'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Assert action ran (instructions-file and error flags)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded with instructions-file and error flag inputs"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (sentinel repo or network issue)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi

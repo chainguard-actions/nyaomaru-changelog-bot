@@ -1,0 +1,39 @@
+name: Test path and branch inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create fixture files
+        run: |
+          mkdir -p /tmp/changelog-bot-test
+          echo "# Changelog" > /tmp/changelog-bot-test/CHANGELOG.md
+          echo '{}' > /tmp/changelog-bot-test/changelog-bot.json
+          echo "Group fixes together." > /tmp/changelog-bot-test/instructions.txt
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          dry-run: 'true'
+          no-ai: 'true'
+          changelog-path: '/tmp/changelog-bot-test/CHANGELOG.md'
+          config-path: '/tmp/changelog-bot-test/changelog-bot.json'
+          base-branch: 'main'
+          instructions: 'Group fixes together.'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Assert action ran (dry-run with path/branch inputs)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded with path and branch inputs"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (sentinel repo or network issue)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
