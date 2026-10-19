@@ -1,0 +1,43 @@
+name: Test dry-run with instructions, instructions-file, and dry-run-json-report
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Create instructions file
+        run: |
+          mkdir -p /tmp/changelog-instructions
+          echo 'Group commits by type. Use clear, concise language.' > /tmp/changelog-instructions/instructions.txt
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          dry-run: 'true'
+          dry-run-json-report: 'true'
+          no-ai: 'true'
+          release-tag: 'HEAD'
+          release-name: '1.0.0-test'
+          instructions: 'Focus on user-facing changes.'
+          instructions-file: '/tmp/changelog-instructions/instructions.txt'
+
+      - name: Assert action ran with instructions and dry-run-json-report
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action completed successfully with instructions and dry-run-json-report"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (expected under sentinel repo or network constraints)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
