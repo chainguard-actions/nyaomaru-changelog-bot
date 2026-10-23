@@ -1,0 +1,46 @@
+name: Test custom instructions with provider (no-ai dry-run)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Prepare changelog and instructions file
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/.changelog-test"
+          printf '# Changelog\n\n## [1.0.0] - 2024-01-01\n\n- Initial release\n' > "$GITHUB_WORKSPACE/.changelog-test/CHANGELOG.md"
+          printf 'Group entries by user-facing impact.\nKeep bullets short.\n' > "$GITHUB_WORKSPACE/.changelog-test/instructions.md"
+          sha256sum "$GITHUB_WORKSPACE/.changelog-test/CHANGELOG.md" | awk '{print $1}' > /tmp/changelog-before.sha
+      - id: action
+        uses: .
+        with:
+          changelog-path: .changelog-test/CHANGELOG.md
+          provider: openai
+          release-tag: HEAD
+          release-name: '9.9.9'
+          release-body: |
+            * feat: add instructions support
+          instructions: 'Mention breaking changes first.'
+          instructions-file: .changelog-test/instructions.md
+          fail-on-llm-error: 'false'
+          dry-run: 'true'
+          no-ai: 'true'
+      - name: Assert action succeeded and changelog untouched
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" != "success" ]; then
+            echo "FAIL: expected success"
+            exit 1
+          fi
+          BEFORE="$(cat /tmp/changelog-before.sha)"
+          AFTER="$(sha256sum "$GITHUB_WORKSPACE/.changelog-test/CHANGELOG.md" | awk '{print $1}')"
+          if [ "$BEFORE" != "$AFTER" ]; then
+            echo "FAIL: dry-run modified the changelog file"
+            exit 1
+          fi
+          echo "PASS"

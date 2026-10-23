@@ -1,0 +1,50 @@
+name: Test config file with base-branch and release-tag
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Prepare changelog and config
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/.changelog-test"
+          printf '# Changelog\n\n## [1.0.0] - 2024-01-01\n\n- Initial release\n' > "$GITHUB_WORKSPACE/.changelog-test/CHANGELOG.md"
+          cat > "$GITHUB_WORKSPACE/.changelog-test/changelog-bot.json" <<'EOF'
+          {
+            "changelogPath": ".changelog-test/CHANGELOG.md",
+            "dryRun": true,
+            "noAi": true,
+            "language": "en"
+          }
+          EOF
+          sha256sum "$GITHUB_WORKSPACE/.changelog-test/CHANGELOG.md" | awk '{print $1}' > /tmp/changelog-before.sha
+      - id: action
+        uses: .
+        with:
+          config-path: .changelog-test/changelog-bot.json
+          base-branch: main
+          release-tag: HEAD
+          release-name: '9.9.9'
+          release-body: |
+            * feat: add config file support
+      - name: Assert action succeeded and changelog untouched (dryRun from config)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" != "success" ]; then
+            echo "FAIL: expected success"
+            exit 1
+          fi
+          BEFORE="$(cat /tmp/changelog-before.sha)"
+          AFTER="$(sha256sum "$GITHUB_WORKSPACE/.changelog-test/CHANGELOG.md" | awk '{print $1}')"
+          echo "before: $BEFORE"
+          echo "after:  $AFTER"
+          if [ "$BEFORE" != "$AFTER" ]; then
+            echo "FAIL: dry-run from config modified the changelog file"
+            exit 1
+          fi
+          echo "PASS"
