@@ -1,0 +1,42 @@
+name: Test dry-run JSON report with instructions
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Record state before
+        run: sha256sum tests/fixtures/CHANGELOG.md | tee /tmp/before.sha
+      - id: action
+        uses: .
+        with:
+          changelog-path: tests/fixtures/CHANGELOG.md
+          release-tag: HEAD
+          release-name: v1.2.3
+          release-body: "Notes for JSON report test"
+          instructions: "Group changes by area."
+          language: English
+          dry-run: 'true'
+          dry-run-json-report: 'true'
+          no-ai: 'true'
+          minimum-package-age-days: '0'
+      - name: Assert action succeeded
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" != "success" ]; then
+            echo "FAIL: expected success"
+            exit 1
+          fi
+          echo "PASS"
+      - name: Assert changelog untouched
+        run: |
+          if ! sha256sum -c /tmp/before.sha; then
+            echo "FAIL: changelog modified during dry-run"
+            exit 1
+          fi
+          echo "PASS"

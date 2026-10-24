@@ -1,0 +1,59 @@
+name: Test dry-run with no-ai
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Record state before
+        run: |
+          sha256sum tests/fixtures/CHANGELOG.md | tee /tmp/before.sha
+          git rev-parse HEAD > /tmp/before-head
+          git branch --list | sort > /tmp/before-branches
+      - id: action
+        uses: .
+        with:
+          changelog-path: tests/fixtures/CHANGELOG.md
+          release-tag: HEAD
+          release-name: 9.9.9
+          release-body: "Test release body"
+          dry-run: 'true'
+          no-ai: 'true'
+      - name: Assert action succeeded
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" != "success" ]; then
+            echo "FAIL: expected success"
+            exit 1
+          fi
+          echo "PASS"
+      - name: Assert dry-run did not modify changelog or create commits/branches
+        run: |
+          if ! sha256sum -c /tmp/before.sha; then
+            echo "FAIL: changelog was modified during dry-run"
+            exit 1
+          fi
+          if [ "$(git rev-parse HEAD)" != "$(cat /tmp/before-head)" ]; then
+            echo "FAIL: HEAD changed during dry-run"
+            exit 1
+          fi
+          git branch --list | sort > /tmp/after-branches
+          if ! diff /tmp/before-branches /tmp/after-branches; then
+            echo "FAIL: branches changed during dry-run"
+            exit 1
+          fi
+          echo "PASS"
+      - name: Assert git user configured by action
+        run: |
+          NAME="$(git config user.name)"
+          echo "user.name: $NAME"
+          if [ "$NAME" != "github-actions[bot]" ]; then
+            echo "FAIL: expected github-actions[bot]"
+            exit 1
+          fi
+          echo "PASS"
